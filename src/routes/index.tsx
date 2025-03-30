@@ -7,7 +7,12 @@ const indexRoute = createRoute({
   path: '/',
   component: function Index() {
     return (
+      <div className="gap-4 grid md:grid-cols-3 auto-rows-min">
+      <div className="bg-muted/50 rounded-xl w-full h-full aspect-video">
       <QueryPlaceholder/>
+
+        </div>
+      </div>
     )
   },
 })

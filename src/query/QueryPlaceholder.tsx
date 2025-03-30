@@ -30,9 +30,6 @@ export default function QueryPlaceholder() {
       ))}
     </ul>
     </div>
-    <div className="bg-muted/50 rounded-xl aspect-video">
-      Hello
-    </div>
   </div>
 
   )

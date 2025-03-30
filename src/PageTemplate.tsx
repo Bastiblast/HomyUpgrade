@@ -40,10 +40,7 @@ export default function PageTemplate({children}: {children: React.ReactNode}) {
             </Breadcrumb>
           </div>
         </header>
-        <div className="flex flex-col flex-1 gap-4 p-4 pt-0">
           {children}
-          <div className="flex-1 bg-muted/50 rounded-xl min-h-[100vh] md:min-h-min" />
-        </div>
       </SidebarInset>
     </SidebarProvider>
   )
