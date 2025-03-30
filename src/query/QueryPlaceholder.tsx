@@ -22,11 +22,19 @@ export default function QueryPlaceholder() {
 
   // We can assume by this point that `isSuccess === true`
   return (
+    <div className="gap-4 grid md:grid-cols-3 auto-rows-min">
+    <div className="bg-muted/50 rounded-xl aspect-video">
     <ul>
       {data.map((todo) => (
         <li key={todo.id}>{todo.title}</li>
       ))}
     </ul>
+    </div>
+    <div className="bg-muted/50 rounded-xl aspect-video">
+      Hello
+    </div>
+  </div>
+
   )
 }
 

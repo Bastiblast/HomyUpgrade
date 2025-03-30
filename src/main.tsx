@@ -1,50 +1,14 @@
-import { createRoot } from 'react-dom/client'
 import './index.css'
-import App from './App.tsx'
 import React from 'react'
-import { Link, Outlet, RouterProvider, createRootRoute, createRoute, createRouter } from '@tanstack/react-router'
+import { createRoot } from 'react-dom/client'
+import { createHashHistory,RouterProvider, createRouter } from '@tanstack/react-router'
 
 // Import the generated route tree
+import rootRoute from '@/routes/__root'
+import indexRoute from '@/routes/index'
+import aboutRoute from '@/routes/about'
 
-import { createHashHistory } from '@tanstack/react-router'
 
-
-const rootRoute = createRootRoute({
-  component: () => (
-    <>
-      <div className="flex gap-2 p-2">
-        <Link to="/" className="[&.active]:font-bold">
-          Home
-        </Link>{' '}
-        <Link to="/about" className="[&.active]:font-bold">
-          About
-        </Link>
-      </div>
-      <hr />
-      <Outlet />
-    </>
-  ),
-})
-
-const indexRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/',
-  component: function Index() {
-    return (
-      <div className="p-2">
-        <h3>Welcome Home!</h3>
-      </div>
-    )
-  },
-})
-
-const aboutRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/about',
-  component: function About() {
-    return <div className="p-2">Hello from About!</div>
-  },
-})
 
 const routeTree = rootRoute.addChildren([indexRoute, aboutRoute])
 
@@ -77,3 +41,5 @@ createRoot(
     <RouterProvider router={router} />
   </React.StrictMode>,
 );
+
+export {rootRoute}
