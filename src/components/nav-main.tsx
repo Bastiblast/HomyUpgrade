@@ -1,5 +1,4 @@
 "use client"
-import About from "@/about"
 import { ChevronRight, type LucideIcon } from "lucide-react"
 
 import {
@@ -17,7 +16,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
-import { storeNavigation } from "@/store/storeNavigation"
+import { Link } from "@tanstack/react-router"
 
 export function NavMain({
   items,
@@ -33,7 +32,6 @@ export function NavMain({
     }[]
   }[]
 }) {
-  const updateNavigate = storeNavigation(s => s.updateNavigate)
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Platform</SidebarGroupLabel>
@@ -58,9 +56,10 @@ export function NavMain({
                   {item.items?.map((subItem) => (
                     <SidebarMenuSubItem key={subItem.title}>
                       <SidebarMenuSubButton asChild>
-                        <button onClick={() => updateNavigate(About())}>
-                          <span>{subItem.title}</span>
-                        </button>
+                        <Link to={`/${subItem.title.replace(" ","").toLowerCase()}`} className="[&.active]:font-bold">
+                        <span>{subItem.title}</span>
+                        </Link>
+                   
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
                   ))}

@@ -1,11 +1,28 @@
-import { createRoot } from 'react-dom/client'
 import './index.css'
-import App from './App.tsx'
 import React from 'react'
+import { createRoot } from 'react-dom/client'
+import { createHashHistory,RouterProvider, createRouter } from '@tanstack/react-router'
 
-// document.body.style.display = "none"
+// Import the generated route tree
+import rootRoute from '@/routes/__root'
+import indexRoute from '@/routes/index'
+import aboutRoute from '@/routes/about'
+
+const routeTree = rootRoute.addChildren([indexRoute, aboutRoute])
+
+declare module '@tanstack/react-router' {
+  interface Register {
+    router: typeof router
+  }
+}
+
+const hashHistory = createHashHistory()
+
+const router = createRouter({ routeTree, history: hashHistory })
 
 const newBody = document.createElement("section")
+
+document.body.style.display = "none"
 
 document.querySelector("html")?.prepend(newBody)
 
@@ -17,6 +34,8 @@ createRoot(
   })(),
 ).render(
   <React.StrictMode>
-    <App />
+    <RouterProvider router={router} />
   </React.StrictMode>,
 );
+
+export {rootRoute}
