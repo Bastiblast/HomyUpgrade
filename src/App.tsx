@@ -8,30 +8,24 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import QueryPlaceholder from './query/QueryPlaceholder'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { storeNavigation } from './store/storeNavigation'
 
 const queryClient = new QueryClient()
 
 
 function App() {
 
+  const navigate = storeNavigation(s => s.navigate)
+  
   return (
     <div className='w-full h-full'>
     
-        <PageTemplate>
-        <div className="gap-4 grid md:grid-cols-3 auto-rows-min">
-            <div className="bg-muted/50 rounded-xl aspect-video">
               <QueryClientProvider client={queryClient}>
-                <QueryPlaceholder />
-              </QueryClientProvider>
-            </div>
-            <div className="bg-muted/50 rounded-xl aspect-video">
-              Hello
-            </div>
-          </div>
-        
+        <PageTemplate>
+          {navigate}
         </PageTemplate>
+              </QueryClientProvider>
 
 
       <div className='left-20 absolute'>
