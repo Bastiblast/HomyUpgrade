@@ -6,14 +6,17 @@ import { Link, Outlet, RouterProvider, createRootRoute, createRoute, createRoute
 
 // Import the generated route tree
 
+import { createHashHistory } from '@tanstack/react-router'
+
+
 const rootRoute = createRootRoute({
   component: () => (
     <>
       <div className="flex gap-2 p-2">
-        <Link to="/monkeyWhiteBoard" className="[&.active]:font-bold">
+        <Link to="/" className="[&.active]:font-bold">
           Home
         </Link>{' '}
-        <Link to="/monkeyWhiteBoard/about" className="[&.active]:font-bold">
+        <Link to="/about" className="[&.active]:font-bold">
           About
         </Link>
       </div>
@@ -25,7 +28,7 @@ const rootRoute = createRootRoute({
 
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/monkeyWhiteBoard/',
+  path: '/',
   component: function Index() {
     return (
       <div className="p-2">
@@ -37,7 +40,7 @@ const indexRoute = createRoute({
 
 const aboutRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/monkeyWhiteBoard/about',
+  path: '/about',
   component: function About() {
     return <div className="p-2">Hello from About!</div>
   },
@@ -45,13 +48,17 @@ const aboutRoute = createRoute({
 
 const routeTree = rootRoute.addChildren([indexRoute, aboutRoute])
 
-const router = createRouter({ routeTree })
 
 declare module '@tanstack/react-router' {
   interface Register {
     router: typeof router
   }
 }
+
+const hashHistory = createHashHistory()
+
+const router = createRouter({ routeTree, history: hashHistory })
+
 
 const newBody = document.createElement("section")
 
