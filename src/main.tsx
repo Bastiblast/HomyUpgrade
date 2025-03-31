@@ -1,12 +1,16 @@
 import './index.css'
-import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { createHashHistory,RouterProvider, createRouter } from '@tanstack/react-router'
-
+import {GM_addElement} from '$'
 // Import the generated route tree
 import rootRoute from '@/routes/__root'
 import indexRoute from '@/routes/index'
 import aboutRoute from '@/routes/about'
+import React from 'react'
+import ReactDOM from 'react-dom'
+
+GM_addElement(document.body, "script", {innerHTML: React })
+GM_addElement(document.body, "script", {innerHTML: ReactDOM })
 
 const routeTree = rootRoute.addChildren([indexRoute, aboutRoute])
 

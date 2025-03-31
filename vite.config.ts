@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
-import monkey, { cdn } from 'vite-plugin-monkey';
+import monkey, { cdn, util } from 'vite-plugin-monkey';
 import path from "path"
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 
@@ -24,13 +24,7 @@ export default defineConfig({
         match: ['https://bastiblast.github.io/monkeyWhiteBoard*'],
       },
       build: {
-        externalGlobals: {
-          react: cdn.jsdelivr('React', 'umd/react.production.min.js'),
-          'react-dom': cdn.jsdelivr(
-            'ReactDOM',
-            'umd/react-dom.production.min.js',
-          ),
-        },
+        externalGlobals: undefined,
       },
     }),
   ],
