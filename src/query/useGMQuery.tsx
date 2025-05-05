@@ -2,18 +2,29 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { ReactNode } from '@tanstack/react-router'
 import { url } from 'inspector'
 import React, { useState } from 'react'
-import { GM, GM_xmlhttpRequest } from 'vite-plugin-monkey/dist/client'
+import { GM, GM_getValue, GM_setValue, GM_xmlhttpRequest } from 'vite-plugin-monkey/dist/client'
 
 interface GMQueryResponse {
   status: "wait" | "start" | "load" | "abort" | "error" | 'success',
   data: null | string | ReactNode
 }
 
-export default function useGMQuery() {
+interface GMQueryStorage {
+  stamp: number,
+  response: string
+}
+
+export default function useGMQuery(name:string) {
 
     console.log("useGMQuery initialize to ")
     const [response,setResponse] = useState<GMQueryResponse>({status:"wait",data:null})
 
+    const store = ():GMQueryStorage => {
+      const value = GM_getValue(name)
+      return value ? JSON.parse(value) : null
+    }
+
+    console.log("Storage found ",store())
     function get (url:string) {
     console.log("useGMQuery getting ",url)
 
@@ -24,15 +35,14 @@ export default function useGMQuery() {
          // "Accept": "text/xml"            // If not specified, browser defaults will be used.
         },
         onloadstart: function (response) {
-          setTimeout(() => 
+
             setResponse({status:"start",data: response.responseText})
-          ,1000
-          )
+
         },
         onprogress: function (response) {
           setTimeout(() => 
             setResponse({status:"load",data: response.responseText})
-          ,1000
+          ,2000
           )
         },
         onabort: function () {
@@ -42,9 +52,20 @@ export default function useGMQuery() {
           setResponse({status:"error",data: response.responseText})
         },
         onload: function(response) {
-          setTimeout(() => 
-            setResponse({status:"success",data: response.responseText})
-          ,5000)
+          switch (response.status) {
+            case (200) :
+              setTimeout(() => {
+                console.log("success",response)
+                setResponse({status:"success",data: response.responseText})
+                GM_setValue(name,JSON.stringify({stamp:Date.now(),response:response.responseText}))
+              },5000)
+            break
+            default :
+              setTimeout(() => {
+                console.log("error",response)
+                setResponse({status:"error",data: response.status})
+              },5000)
+          }
         }
       });
     }

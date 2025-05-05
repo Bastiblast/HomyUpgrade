@@ -4,8 +4,8 @@ import SkeletonCard from '@/components/skeleton-card'
 
 export default function GMqueryTemplate() {
     
-    const {get,response} = useGMQuery()
-    const url = useRef("")
+    const {get,response} = useGMQuery("jsonP")
+    const url = useRef(null)
 
     if (response.status === "wait" && url.current) {
         
@@ -18,7 +18,8 @@ export default function GMqueryTemplate() {
 
   return (
     <>
-    <button onClick={() => get(url.current.value)}>fetch</button><input ref={url} type="text" />
+    <button onClick={() => get(url.current.value)}>fetch</button>
+    <input defaultValue={"https://jsonplaceholder.typicode.com/todos/"} ref={url} type="text" />
     <div>{response.status}</div>
     {response.status === "load" && <SkeletonCard/>}
     <div>{response.data}</div>
