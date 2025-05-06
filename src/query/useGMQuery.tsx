@@ -1,8 +1,6 @@
-import { Skeleton } from '@/components/ui/skeleton'
 import { ReactNode } from '@tanstack/react-router'
-import { url } from 'inspector'
-import React, { useState } from 'react'
-import { GM, GM_getValue, GM_setValue, GM_xmlhttpRequest } from 'vite-plugin-monkey/dist/client'
+import { useState } from 'react'
+import { GM_getValue, GM_setValue, GM_xmlhttpRequest } from 'vite-plugin-monkey/dist/client'
 
 interface GMQueryResponse {
   status: "wait" | "start" | "load" | "abort" | "error" | 'success',
@@ -10,8 +8,18 @@ interface GMQueryResponse {
 }
 
 interface GMQueryStorage {
-  stamp: number,
-  response: string
+  success?: { 
+    stamp: number,
+    response: string 
+  },
+  error?: {
+    stamp: number,
+    response: string
+  },
+  abort?: {
+    stamp: number,
+    response: string
+  },
 }
 
 export default function useGMQuery(name:string) {
@@ -25,6 +33,8 @@ export default function useGMQuery(name:string) {
     }
 
     console.log("Storage found ",store())
+
+    
     function get (url:string) {
     console.log("useGMQuery getting ",url)
 
@@ -46,9 +56,23 @@ export default function useGMQuery(name:string) {
           )
         },
         onabort: function () {
+          const storeAbort: GMQueryStorage = {
+            error:{
+              stamp:Date.now(),
+              response:"abort"
+            }
+            }
+          GM_setValue(name,JSON.stringify({...store(),...storeAbort}))
           setResponse({status:"abort",data:"abort"})
         },        
         onerror: function (response) {
+          const storeError: GMQueryStorage = {
+            error:{
+              stamp:Date.now(),
+              response:response.responseText
+            }
+            }
+          GM_setValue(name,JSON.stringify({...store(),...storeError}))
           setResponse({status:"error",data: response.responseText})
         },
         onload: function(response) {
@@ -57,12 +81,26 @@ export default function useGMQuery(name:string) {
               setTimeout(() => {
                 console.log("success",response)
                 setResponse({status:"success",data: response.responseText})
-                GM_setValue(name,JSON.stringify({stamp:Date.now(),response:response.responseText}))
+                const storeSuccess: GMQueryStorage = {
+                  success:{
+                    stamp:Date.now(),
+                    response:response.responseText
+                  }
+                  }
+                GM_setValue(name,JSON.stringify({...store(),...storeSuccess}))
               },5000)
             break
             default :
               setTimeout(() => {
                 console.log("error",response)
+                const storeError: GMQueryStorage = {
+                  error:{
+                    stamp:Date.now(),
+                    response:response.responseText
+                  }
+                  }
+                GM_setValue(name,JSON.stringify({...store(),...storeError}))
+
                 setResponse({status:"error",data: response.status})
               },5000)
           }
