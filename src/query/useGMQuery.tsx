@@ -1,15 +1,16 @@
 import { ReactNode } from '@tanstack/react-router'
 import { Ref, RefObject, use, useEffect, useRef, useState } from 'react'
-import { GM, GM_getValue, GM_setValue, GM_xmlhttpRequest } from 'vite-plugin-monkey/dist/client'
+import { GM, GM_getValue, GM_setValue, GM_xmlhttpRequest, GmAsyncXmlhttpRequestReturnType, GmResponseEvent, GmXmlhttpRequestOption } from 'vite-plugin-monkey/dist/client'
 
 interface MonkeyQueryProps {
   name: string;
+  responseType: "json" | "text" | "xml";
   latence?: number;
   refresh: true | false | number
 }
 
 interface GMQueryResponse {
-  status: "wait" | "start" | "load" | "abort" | "error" | 'success';
+  status: "wait" | "start" | "load" | "abort" | "error" | 'success' | 'completed';
   stamp?: number;
   data: null | string | ReactNode
 }
@@ -29,7 +30,7 @@ interface GMQueryStorage {
   },
 }
 
-export default function useMonkeyQuery({name,latence = 0,refresh = false}: MonkeyQueryProps) {
+export default function useMonkeyQuery({name,latence = 0,refresh = false,responseType}: MonkeyQueryProps) {
 
     console.log("useMonkeyQuery initialize to ")
     const getUrl = useRef<null | string>(null)
@@ -64,6 +65,32 @@ export default function useMonkeyQuery({name,latence = 0,refresh = false}: Monke
       return () => clearInterval(timer)
     },[monkeyResponse])
     
+    function dataMaker (resp) {
+      switch (responseType) {
+        case "json": 
+        console.log("monkeyQuery jsonify")
+        try {
+          const json = JSON.parse(resp.responseText)
+          console.log("json is now ",json)
+          setJsonResponse(json)
+        } catch (error) {
+          console.log("getJSON error",error)
+          setTimeout(() => {
+  
+            setMonkeyResponse({status:"error",data:error})
+          },latence * 2)
+        }
+        break
+        case "text":
+          console.log("monkeyQuery textify ",responseType,resp.responseText)
+          setMonkeyResponse({...resp, status:"completed",data:resp.responseText})
+        break
+        case "xml":
+        break
+      }
+    }
+
+
     async function get (url:string)  {
       getUrl.current = url
     console.log("useMonkeyQuery getting ",url)
@@ -135,32 +162,14 @@ export default function useMonkeyQuery({name,latence = 0,refresh = false}: Monke
               },latence * 2)
           }
         }
-      });
+      })
+      
+      dataMaker(httpResponse)
+
     console.log("QueryResponse ",monkeyResponse)
-console.log("useMonkeyQuery ",useMonkeyQuery)
-      return httpResponse
     }
 
-    function getText (httpResponse) {
-      console.log("monkeyQuery textify",httpResponse.responseText)
-      setTextResponse(httpResponse.responseText)
-    }
 
-    function getJSON (httpResponse) {
-     console.log("monkeyQuery jsonify")
-      try {
-        const json = JSON.parse(httpResponse.responseText)
-        console.log("json is now ",json)
-        setJsonResponse(json)
-      } catch (error) {
-        console.log("getJSON error",error)
-        setTimeout(() => {
 
-          setMonkeyResponse({status:"error",data:error})
-        },latence * 2)
-      }
-
-    }
-
-  return ({monkeyResponse,get,textResponse,jsonResponse,getText,getJSON})
+  return ({monkeyResponse,get})
 }

@@ -5,7 +5,7 @@ import { GM_deleteValue } from 'vite-plugin-monkey/dist/client'
 
 export default function GMqueryTemplate() {
     
-    const {get,monkeyResponse,textResponse,jsonResponse,getText,getJSON} = useGMQuery({name:"jsonP",type:"json",refresh:false})
+    const {get,monkeyResponse} = useGMQuery({name:"jsonP",responseType:"text",refresh:false})
     const url = useRef(null)
     const queryName = useRef(null)
 
@@ -17,10 +17,6 @@ export default function GMqueryTemplate() {
     }
 
     useEffect(() => {
-      console.log({jsonResponse})
-    },[jsonResponse])
-
-    useEffect(() => {
       console.log({monkeyResponse})
     },[monkeyResponse])
     
@@ -28,7 +24,7 @@ export default function GMqueryTemplate() {
   return (
     <>
     <div>
-      <button className="px-2" onClick={() => get(url.current.value).then(resp => getJSON(resp))}>fetch</button>
+      <button className="px-2" onClick={() => get(url.current.value)}>fetch</button>
       <input className="px-2" defaultValue={"https://jsonplaceholder.typicode.com/todos/1"} ref={url} type="text" />
     </div>
     <div>
@@ -36,9 +32,8 @@ export default function GMqueryTemplate() {
       <input className="px-2" defaultValue={"jsonP"} ref={queryName} type="text" />
     </div>
     <div>{monkeyResponse.status}</div>
-    <div>{monkeyResponse.status === "error" && monkeyResponse.data.toString()}</div>
+    <div>{monkeyResponse.status === "completed" && monkeyResponse.data}</div>
     {monkeyResponse.status === "load" && <SkeletonCard/>}
-    <div>{textResponse && textResponse}</div>
     </>
   )
 }
