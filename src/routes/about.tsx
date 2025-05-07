@@ -1,5 +1,4 @@
-import GMqueryTemplate from '@/query/GMqueryTemplate'
-import useGMQuery from '@/query/useGMQuery'
+import MonkeyFunctionComponent from '@/query/MonkeyFunctionComponent'
 import rootRoute from '@/routes/__root'
 import { createRoute } from '@tanstack/react-router'
 
@@ -11,7 +10,7 @@ const aboutRoute = createRoute({
 
     return (
       <>
-      <GMqueryTemplate />
+      <MonkeyFunctionComponent />
 
     
       </>
