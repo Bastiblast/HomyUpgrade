@@ -4,6 +4,7 @@ import { GM_getValue, GM_setValue, GM_xmlhttpRequest } from 'vite-plugin-monkey/
 
 interface GMQueryResponse {
   status: "wait" | "start" | "load" | "abort" | "error" | 'success',
+  type: "query" | "text" | "json",
   data: null | string | ReactNode
 }
 
@@ -35,7 +36,7 @@ export default function useGMQuery(name:string) {
     console.log("Storage found ",store())
 
     
-    function get (url:string) {
+    function get (url:string)  {
     console.log("useGMQuery getting ",url)
 
         GM_xmlhttpRequest({
@@ -46,12 +47,12 @@ export default function useGMQuery(name:string) {
         },
         onloadstart: function (response) {
 
-            setResponse({status:"start",data: response.responseText})
+            setResponse({status:"start",type: "query",data: response.responseText})
 
         },
         onprogress: function (response) {
           setTimeout(() => 
-            setResponse({status:"load",data: response.responseText})
+            setResponse({status:"load",type: "query",data: response.responseText})
           ,2000
           )
         },
@@ -63,7 +64,7 @@ export default function useGMQuery(name:string) {
             }
             }
           GM_setValue(name,JSON.stringify({...store(),...storeAbort}))
-          setResponse({status:"abort",data:"abort"})
+          setResponse({status:"abort",type: "query",data:"abort"})
         },        
         onerror: function (response) {
           const storeError: GMQueryStorage = {
@@ -73,14 +74,14 @@ export default function useGMQuery(name:string) {
             }
             }
           GM_setValue(name,JSON.stringify({...store(),...storeError}))
-          setResponse({status:"error",data: response.responseText})
+          setResponse({status:"error",type: "query",data: response.responseText})
         },
         onload: function(response) {
           switch (response.status) {
             case (200) :
               setTimeout(() => {
                 console.log("success",response)
-                setResponse({status:"success",data: response.responseText})
+                setResponse({status:"success",type: "query",data: response})
                 const storeSuccess: GMQueryStorage = {
                   success:{
                     stamp:Date.now(),
@@ -101,11 +102,20 @@ export default function useGMQuery(name:string) {
                   }
                 GM_setValue(name,JSON.stringify({...store(),...storeError}))
 
-                setResponse({status:"error",data: response.status})
+                setResponse({status:"error",type: "query",data: response.status})
               },5000)
           }
         }
       });
+    console.log("QueryResponse ",response)
+console.log("useGMQuery ",useGMQuery)
+      return useGMQuery
+    }
+
+    function text () {
+      setResponse({...response,type: "text",data: response.responseText})
+    console.log("QueryResponse ",response)
+
     }
 
   return ({response,get})

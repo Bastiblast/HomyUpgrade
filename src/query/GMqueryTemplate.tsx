@@ -21,7 +21,7 @@ export default function GMqueryTemplate() {
   return (
     <>
     <div>
-      <button className="px-2" onClick={() => get(url.current.value)}>fetch</button>
+      <button className="px-2" onClick={() => get(url.current.value).text()}>fetch</button>
       <input className="px-2" defaultValue={"https://jsonplaceholder.typicode.com/todos/"} ref={url} type="text" />
     </div>
     <div>
@@ -30,7 +30,7 @@ export default function GMqueryTemplate() {
     </div>
     <div>{response.status}</div>
     {response.status === "load" && <SkeletonCard/>}
-    <div>{response.data}</div>
+    <div>{ response.type === "text" && response.data}</div>
     </>
   )
 }
