@@ -1,10 +1,16 @@
 import { ReactNode } from '@tanstack/react-router'
-import { useState } from 'react'
-import { GM_getValue, GM_setValue, GM_xmlhttpRequest } from 'vite-plugin-monkey/dist/client'
+import { Ref, RefObject, use, useEffect, useRef, useState } from 'react'
+import { GM, GM_getValue, GM_setValue, GM_xmlhttpRequest } from 'vite-plugin-monkey/dist/client'
+
+interface MonkeyQueryProps {
+  name: string;
+  latence?: number;
+  refresh: true | false | number
+}
 
 interface GMQueryResponse {
-  status: "wait" | "start" | "load" | "abort" | "error" | 'success',
-  type: "query" | "text" | "json",
+  status: "wait" | "start" | "load" | "abort" | "error" | 'success';
+  stamp?: number;
   data: null | string | ReactNode
 }
 
@@ -23,10 +29,15 @@ interface GMQueryStorage {
   },
 }
 
-export default function useGMQuery(name:string) {
+export default function useMonkeyQuery({name,latence = 0,refresh = false}: MonkeyQueryProps) {
 
-    console.log("useGMQuery initialize to ")
-    const [response,setResponse] = useState<GMQueryResponse>({status:"wait",data:null})
+    console.log("useMonkeyQuery initialize to ")
+    const getUrl = useRef<null | string>(null)
+    const [monkeyResponse,setMonkeyResponse] = useState<GMQueryResponse>({status:"wait",data:null})
+    const [textResponse,setTextResponse] = useState<null |string>(null)
+    const [jsonResponse,setJsonResponse] = useState<null |object>(null)
+
+    const refreshTime = typeof refresh === "number" ? refresh : 5000
 
     const store = ():GMQueryStorage => {
       const value = GM_getValue(name)
@@ -35,11 +46,29 @@ export default function useGMQuery(name:string) {
 
     console.log("Storage found ",store())
 
-    
-    function get (url:string)  {
-    console.log("useGMQuery getting ",url)
+    const isOutDated = (stamp: number): boolean => {
+      return (Date.now() - stamp) > refreshTime
+    }
 
-        GM_xmlhttpRequest({
+    useEffect(() => {
+      const {status} = monkeyResponse
+      if (status === "wait" || status === "start" || status === "load" || !refresh) return
+
+      const timer = setInterval(() => {
+        console.log("Interval set to ",refreshTime,". Data is outDated ? ",isOutDated(monkeyResponse.stamp))
+        return monkeyResponse.stamp && getUrl.current && isOutDated(monkeyResponse.stamp) ? get(getUrl.current) : null
+      },refreshTime)
+
+      console.log("useEffect effect")
+
+      return () => clearInterval(timer)
+    },[monkeyResponse])
+    
+    async function get (url:string)  {
+      getUrl.current = url
+    console.log("useMonkeyQuery getting ",url)
+
+        const httpResponse = await GM.xmlHttpRequest({
         method: "GET",
         url: url,
         headers: {
@@ -47,13 +76,13 @@ export default function useGMQuery(name:string) {
         },
         onloadstart: function (response) {
 
-            setResponse({status:"start",type: "query",data: response.responseText})
+            setMonkeyResponse({status:"start",data: response.responseText})
 
         },
         onprogress: function (response) {
           setTimeout(() => 
-            setResponse({status:"load",type: "query",data: response.responseText})
-          ,2000
+            setMonkeyResponse({status:"load",data: response.responseText})
+          ,latence
           )
         },
         onabort: function () {
@@ -64,7 +93,7 @@ export default function useGMQuery(name:string) {
             }
             }
           GM_setValue(name,JSON.stringify({...store(),...storeAbort}))
-          setResponse({status:"abort",type: "query",data:"abort"})
+          setMonkeyResponse({status:"abort",stamp:Date.now(),data:"abort"})
         },        
         onerror: function (response) {
           const storeError: GMQueryStorage = {
@@ -74,14 +103,14 @@ export default function useGMQuery(name:string) {
             }
             }
           GM_setValue(name,JSON.stringify({...store(),...storeError}))
-          setResponse({status:"error",type: "query",data: response.responseText})
+          setMonkeyResponse({status:"error",stamp:Date.now(),data: response.responseText})
         },
         onload: function(response) {
           switch (response.status) {
             case (200) :
               setTimeout(() => {
                 console.log("success",response)
-                setResponse({status:"success",type: "query",data: response})
+                setMonkeyResponse({status:"success",stamp:Date.now(),data: response})
                 const storeSuccess: GMQueryStorage = {
                   success:{
                     stamp:Date.now(),
@@ -89,7 +118,7 @@ export default function useGMQuery(name:string) {
                   }
                   }
                 GM_setValue(name,JSON.stringify({...store(),...storeSuccess}))
-              },5000)
+              },latence * 2)
             break
             default :
               setTimeout(() => {
@@ -102,21 +131,36 @@ export default function useGMQuery(name:string) {
                   }
                 GM_setValue(name,JSON.stringify({...store(),...storeError}))
 
-                setResponse({status:"error",type: "query",data: response.status})
-              },5000)
+                setMonkeyResponse({status:"error",data: response.status})
+              },latence * 2)
           }
         }
       });
-    console.log("QueryResponse ",response)
-console.log("useGMQuery ",useGMQuery)
-      return useGMQuery
+    console.log("QueryResponse ",monkeyResponse)
+console.log("useMonkeyQuery ",useMonkeyQuery)
+      return httpResponse
     }
 
-    function text () {
-      setResponse({...response,type: "text",data: response.responseText})
-    console.log("QueryResponse ",response)
+    function getText (httpResponse) {
+      console.log("monkeyQuery textify",httpResponse.responseText)
+      setTextResponse(httpResponse.responseText)
+    }
+
+    function getJSON (httpResponse) {
+     console.log("monkeyQuery jsonify")
+      try {
+        const json = JSON.parse(httpResponse.responseText)
+        console.log("json is now ",json)
+        setJsonResponse(json)
+      } catch (error) {
+        console.log("getJSON error",error)
+        setTimeout(() => {
+
+          setMonkeyResponse({status:"error",data:error})
+        },latence * 2)
+      }
 
     }
 
-  return ({response,get})
+  return ({monkeyResponse,get,textResponse,jsonResponse,getText,getJSON})
 }
