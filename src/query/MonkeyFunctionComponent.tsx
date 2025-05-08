@@ -16,64 +16,67 @@ import {
 
 export default function MonkeyFunctionComponent() {
     
-    const {get,monkeyResponse} = useMonkeyQuery({
+    const {get,monkeyResponse,ProgressBar} = useMonkeyQuery({
       name:"jsonP",
-      url:"https://jsonplaceholder.typicode.com/todos",
+      url:"https://jsonplaceholder.typicode.com/todos/1",
       responseType:"json",
       refresh:15000,
-      latence:0,
+      latence:1000,
     })
 
-    const {data,status,lifeTime} = monkeyResponse
+    const {data,status,progress} = monkeyResponse
 
     const [alertColor,setAlertColor] = useState<string>("1")
 
+    console.log("data",data,data && data.length)
+    const newDataArray = data && !data.length ? [data] : data
     useEffect(() => {
-      setAlertColor( `bg-red-${Math.floor(lifeTime/10)}00 w-6`)
+      setAlertColor( `bg-red-${Math.floor(progress/10)}00 w-6`)
 
-    },[lifeTime])
+    },[progress])
 
-    const queryName = useRef("")
-    const progress = {
-      wait:0,
-      start:10,
-      load:50,
-      success:90,
-      error:90,
-      completed:100
-
-    }
 
     useEffect(() => {
       console.log({monkeyResponse})
     },[monkeyResponse])
 
-    function Alert (props) {
-      console.log("Alert prop",props, "color ",alertColor)
-      return <div  className={lifeTime < 100 ? 'bg-green-500 p-2 rounded-2xl w-6' : lifeTime < 150 ? 'bg-amber-600 p-2 rounded-2xl w-6' : 'bg-red-500 p-2 rounded-2xl w-6'}></div>
+    const color = () => {
+      if (status === "error") return 'bg-red-500'
+      if (status === "completed") return 'bg-green-500'
+      if (status === 'start' || status === 'load' || status === 'success') return 'bg-blue-500'
+      if (progress < 100) return 'bg-green-500'
+      if (progress < 150) return 'bg-amber-600'
+      else return 'bg-red-500'
     }
+    
+    function Alert (props) {
+
+      console.log("Alert prop",props, "color ",alertColor)
+      return <div  className={color() + ' p-2 rounded-2xl w-6'}></div>
+    }
+
+
   return (
     <>
-    <div id='fetchUrl' className='flex flex-row justify-between'>
-      <button className="px-2" onClick={() => get()}>Connect</button><Alert />
-    </div>
-    <div id='deleteStoredCache'>
-      <button className="px-2" onClick={() => GM_deleteValue(queryName.current.value)}>delete</button>
-      <input className="px-2" defaultValue={"jsonP"} ref={queryName} type="text" />
+    <div id='fetchUrl' className='flex flex-row justify-between m-2'>
+      <button className="px-2 border-2" onClick={() => get()}>Connect</button>
+    <div className='right-0'>{monkeyResponse.status}</div>
+      
+      <Alert />
     </div>
 
-    <div>{monkeyResponse.status}</div>
-    <Progress value={progress[status] || lifeTime < 101 ? lifeTime : 0}/>
-    {monkeyResponse.status === "load" && <SkeletonCard/>}
+<ProgressBar />
+
+    {monkeyResponse.status === "load" && !data && <SkeletonCard/>}
     <Table>
       <TableCaption>A list of your recent invoices.</TableCaption>
       <TableHeader>
-          {data &&  <TableRow>
-            {Object.keys(data[0]).map((cell,index) => <TableHead key={index}>{cell.toString()}</TableHead>)}
+          {newDataArray &&  <TableRow>
+            {Object.keys(newDataArray[0]).map((cell,index) => <TableHead key={index}>{cell.toString()}</TableHead>)}
         </TableRow>}
       </TableHeader>
       <TableBody>
-        {data && Object.values(data).map((value,index) => <TableRow key={index}>
+        {newDataArray && Object.values(newDataArray).map((value,index) => <TableRow key={index}>
           {Object.values(value).map((cell,index) => <TableCell key={index}>{cell.toString()}</TableCell>)}
         </TableRow>)}
       </TableBody>

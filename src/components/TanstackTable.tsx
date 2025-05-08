@@ -8,6 +8,7 @@ import {
     TableHead,
     TableHeader,
     TableRow,
+    IndeterminateCheckbox
   } from "@/components/ui/table"
   
 import {
