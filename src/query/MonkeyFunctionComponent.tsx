@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import useMonkeyQuery from './useMonkeyQuery'
 import SkeletonCard from '@/components/skeleton-card'
-import { GM_deleteValue } from 'vite-plugin-monkey/dist/client'
-import { Progress } from "@/components/ui/progress"
 import {
   Table,
   TableBody,
@@ -16,56 +14,33 @@ import {
 
 export default function MonkeyFunctionComponent() {
     
-    const {get,monkeyResponse,ProgressBar} = useMonkeyQuery({
+    const {get,monkeyResponse,ProgressBar,Alert} = useMonkeyQuery({
       name:"jsonP",
       url:"https://jsonplaceholder.typicode.com/todos/1",
       responseType:"json",
-      refresh:15000,
+      refresh:false,
       latence:1000,
     })
 
-    const {data,status,progress} = monkeyResponse
-
-    const [alertColor,setAlertColor] = useState<string>("1")
+    const {data,status} = monkeyResponse
 
     console.log("data",data,data && data.length)
     const newDataArray = data && !data.length ? [data] : data
-    useEffect(() => {
-      setAlertColor( `bg-red-${Math.floor(progress/10)}00 w-6`)
-
-    },[progress])
 
 
     useEffect(() => {
       console.log({monkeyResponse})
     },[monkeyResponse])
 
-    const color = () => {
-      if (status === "error") return 'bg-red-500'
-      if (status === "completed") return 'bg-green-500'
-      if (status === 'start' || status === 'load' || status === 'success') return 'bg-blue-500'
-      if (progress < 100) return 'bg-green-500'
-      if (progress < 150) return 'bg-amber-600'
-      else return 'bg-red-500'
-    }
-    
-    function Alert (props) {
-
-      console.log("Alert prop",props, "color ",alertColor)
-      return <div  className={color() + ' p-2 rounded-2xl w-6'}></div>
-    }
-
-
   return (
     <>
     <div id='fetchUrl' className='flex flex-row justify-between m-2'>
       <button className="px-2 border-2" onClick={() => get()}>Connect</button>
-    <div className='right-0'>{monkeyResponse.status}</div>
+    <div className={status === "completed" ? 'animate-bounce' : ''}>{monkeyResponse.status}</div>
       
       <Alert />
     </div>
-
-<ProgressBar />
+<ProgressBar className={"transition duration-1000"} />
 
     {monkeyResponse.status === "load" && !data && <SkeletonCard/>}
     <Table>

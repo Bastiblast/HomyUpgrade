@@ -6,13 +6,25 @@ import { cn } from "@/lib/utils"
 function Progress({
   className,
   value,
-  classBar,
+  color,
   duration,
   ...props
 }: React.ComponentProps<typeof ProgressPrimitive.Root>) {
 
-  console.log("classBar",classBar)
   return (
+    <div>
+          <style>
+        {`@keyframes progress {
+            to {
+              left: calc(100% - 2rem);
+            }
+          }
+          .progress {
+            transform-origin: center;
+            animation: progress 1.25s ease-in-out infinite;
+          }
+          `}
+      </style>
     <ProgressPrimitive.Root
       data-slot="progress"
       className={cn(
@@ -23,10 +35,11 @@ function Progress({
     >
       <ProgressPrimitive.Indicator
         data-slot="progress-indicator"
-        className={cn("bg-primary h-full w-full flex-1 transition-all" ,classBar,duration)}
-        style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
+        className={cn("bg-primary h-full w-full flex-1" ,color,duration)}
+        style={{ transform: `translateX(-${100 - (value || 0)}%)`}}
       />
     </ProgressPrimitive.Root>
+      </div>
   )
 }
 

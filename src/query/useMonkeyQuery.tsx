@@ -1,4 +1,5 @@
 import { Progress } from '@/components/ui/progress';
+import ProgressAnimationDemo from '@/components/ui/progressAnime';
 import { ReactNode } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
 import { GM, GM_getValue, GM_setValue, GmResponseEvent } from 'vite-plugin-monkey/dist/client'
@@ -11,11 +12,15 @@ interface MonkeyQueryProps {
   refresh?: true | false | number
 }
 
+interface progress {
+  prev: number;
+  next:number
+}
 interface GMQueryResponse {
   status: "wait" | "start" | "load" | "abort" | "error" | 'success' | 'completed' | "standby";
   errorMessage: string;
   stamp?: number;
-  progress?: number;
+  progress?: progress;
   lifeTime:number;
   data: null | string | ReactNode
 }
@@ -52,7 +57,7 @@ export default function useMonkeyQuery({name,url,latence = 0,refresh = false,res
       const timer = setInterval(() => {
         console.log(name," Query is out dated ? ",isOutDated(monkeyResponse.stamp))
         if (isOutDated(monkeyResponse.stamp ? monkeyResponse.stamp : 0)) get()
-          else setMonkeyResponse({...monkeyResponse,status:"standby",progress:progressPercent()})
+          else setMonkeyResponse({...monkeyResponse,status:"standby",progress:{prev:monkeyResponse.progress.next,next: progressPercent()}})
       },3000)
 
       return () => clearInterval(timer)
@@ -60,35 +65,45 @@ export default function useMonkeyQuery({name,url,latence = 0,refresh = false,res
     // eslint-disable-next-line react-hooks/exhaustive-deps
     },[monkeyResponse])
     
-    const color = () => {
+    const color = (): string => {
       if (status === "error") return 'bg-red-500'
       if (status === "completed") return 'bg-green-500'
-      if (status === 'start' || status === 'load' || status === 'success') return 'bg-blue-500'
+      if (status === 'start' || status === 'load' || status === 'success') return 'bg-blue-500 animate-pulse'
       if (progressPercent() < 100) return 'bg-green-500'
       if (progressPercent() < 150) return 'bg-amber-600'
       else return 'bg-red-500'
     }
-    function ProgressBar () {
-      return (
-    <Progress classBar={color()} className={'h-6'} value={progressPercent()}/>
-      )
+
+    const duration = () => {
+      return `transition duration-1000`
     }
+
+    function ProgressBar () {
+      return <ProgressAnimationDemo color={color()} duration={duration()} className='h-4' value={monkeyResponse.progress}/>
+    }
+
+    function Alert () {
+      return <div className={color() + ' p-2 rounded-full w-6 h-6'}></div>
+    }
+
     function dataMaker (resp: GmResponseEvent<"text", unknown>) {
       switch (responseType) {
         case "json": 
         console.log("monkeyQuery jsonify",status)
         try {
+          setTimeout(() => {
             const json = JSON.parse(resp.responseText)
-            setMonkeyResponse({...monkeyResponse,status:"completed",stamp:Date.now(),data:json,progress:100})
+            setMonkeyResponse({...monkeyResponse,status:"completed",stamp:Date.now(),data:json,progress:{prev:monkeyResponse.progress.next,next: 100}})
+          },latence * 3)
         } catch (error) {
           console.log("making json error",error)
           setTimeout(() => {
-            setMonkeyResponse({...monkeyResponse,status:"error", errorMessage:error.toString(), progress: 100})
-          },latence * 2)
+            setMonkeyResponse({...monkeyResponse,status:"error", errorMessage:error.toString(), progress:{prev:monkeyResponse.progress.next,next: 100}})
+          },latence * 3)
         }
         break
         case "text":
-          setMonkeyResponse({...monkeyResponse,status:"completed",stamp:Date.now(),data:resp.responseText,progress:100})
+          setMonkeyResponse({...monkeyResponse,status:"completed",stamp:Date.now(),data:resp.responseText,progress:{prev:monkeyResponse.progress.next,next: 100}})
         break
         case "xml":
         break
@@ -106,27 +121,27 @@ export default function useMonkeyQuery({name,url,latence = 0,refresh = false,res
         },
         onloadstart: function () {
           console.log("start return",{...monkeyResponse,status:"start"})
-            setMonkeyResponse({...monkeyResponse,status:"start",progress:15})
+            setMonkeyResponse({...monkeyResponse,status:"start",progress:{prev:0,next: 15}})
         },
         onprogress: function () {
           setTimeout(() => {
           console.log("load return",{...monkeyResponse,status:"load"})
-            setMonkeyResponse({...monkeyResponse,status:"load",progress:50})
-         } ,latence
+            setMonkeyResponse({...monkeyResponse,status:"load",progress:{prev:15,next: 50}})
+         } ,latence 
           )
         },
         onabort: function () {
-          setMonkeyResponse({...monkeyResponse,status:"abort",stamp:Date.now(),progress:100})
+          setMonkeyResponse({...monkeyResponse,status:"abort",stamp:Date.now(),progress:{prev:75,next: 100}})
         },        
         onerror: function (response) {
           console.log("query error")
-          setMonkeyResponse({...monkeyResponse,status:"error", errorMessage:response.responseText, progress: 100})
+          setMonkeyResponse({...monkeyResponse,status:"error", errorMessage:response.responseText, progress:{prev:75,next: 100}})
         },
         onload: function(response) {
           switch (response.status) {
             case (200) :
               setTimeout(() => {
-                setMonkeyResponse({...monkeyResponse,status:"success",stamp:Date.now(), progress: 75})
+                setMonkeyResponse({...monkeyResponse,status:"success",stamp:Date.now(), progress:{prev:50,next: 75}})
                 console.log("onload monkeyResponse ",monkeyResponse)
                 dataMaker(response)
                 console.log("New Monkey store ",JSON.parse(GM_getValue(name)))
@@ -135,13 +150,14 @@ export default function useMonkeyQuery({name,url,latence = 0,refresh = false,res
             default :
             console.log({response})
               setTimeout(() => {
-                setMonkeyResponse({...monkeyResponse ,status:"error", errorMessage:response.responseText, progress: 100})
+                setMonkeyResponse({...monkeyResponse ,status:"error", errorMessage:response.responseText, progress:{prev:75,next: 100}})
               },latence * 2)
+            break
           }
         }
       })
       
     }
 
-  return ({monkeyResponse,get,ProgressBar})
+  return ({monkeyResponse,get,ProgressBar,Alert})
 }
