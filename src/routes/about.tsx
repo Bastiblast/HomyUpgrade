@@ -10,7 +10,13 @@ const aboutRoute = createRoute({
 
     return (
       <>
-      <MonkeyFunctionComponent />
+      <div className='items-stretch grid grid-cols-2'>
+
+      <MonkeyFunctionComponent refresh={20000} url={'https://jsonplaceholder.typicode.com/todos/1'}/>
+      <MonkeyFunctionComponent refresh={25000} url={'https://jsonplaceholder.typicode.com/posts/1'}/>
+      <MonkeyFunctionComponent refresh={30000} url={'https://jsonplaceholder.typicode.com/albums/1'}/>
+      <MonkeyFunctionComponent refresh={35000} url={'https://jsonplaceholder.typicode.com/users/1'}/>
+      </div>
 
     
       </>

@@ -12,28 +12,28 @@ import {
 } from "@/components/ui/table"
 
 
-export default function MonkeyFunctionComponent() {
+export default function MonkeyFunctionComponent({url,refresh}) {
     
     const {get,monkeyResponse,ProgressBar,Alert} = useMonkeyQuery({
       name:"jsonP",
-      url:"https://jsonplaceholder.typicode.com/todos/1",
+      url: url || "https://jsonplaceholder.typicode.com/todos/1",
       responseType:"json",
-      refresh:false,
+      refresh: refresh || false,
       latence:1000,
     })
 
     const {data,status} = monkeyResponse
-
-    console.log("data",data,data && data.length)
     const newDataArray = data && !data.length ? [data] : data
 
 
     useEffect(() => {
-      console.log({monkeyResponse})
-    },[monkeyResponse])
+      console.log(status,{monkeyResponse})
+    },[status,monkeyResponse])
 
   return (
     <>
+    <div className='p-3 border-2'>
+
     <div id='fetchUrl' className='flex flex-row justify-between m-2'>
       <button className="px-2 border-2" onClick={() => get()}>Connect</button>
     <div className={status === "completed" ? 'animate-bounce' : ''}>{monkeyResponse.status}</div>
@@ -44,7 +44,7 @@ export default function MonkeyFunctionComponent() {
 
     {monkeyResponse.status === "load" && !data && <SkeletonCard/>}
     <Table>
-      <TableCaption>A list of your recent invoices.</TableCaption>
+      <TableCaption>Controle panel</TableCaption>
       <TableHeader>
           {newDataArray &&  <TableRow>
             {Object.keys(newDataArray[0]).map((cell,index) => <TableHead key={index}>{cell.toString()}</TableHead>)}
@@ -57,6 +57,7 @@ export default function MonkeyFunctionComponent() {
       </TableBody>
     </Table>
 
+    </div>
     </>
   )
 }

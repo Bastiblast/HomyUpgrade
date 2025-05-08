@@ -6,9 +6,8 @@ export default function ProgressAnimationDemo({color,value}) {
     const {prev,next} = value || 0
   const [progress, setProgress] = React.useState(prev);
   React.useEffect(() => {
-    console.log("value",value)
     setProgress(() => next);
-  }, [value]);
+  }, [value,prev,next]);
   return (
     <div className="w-[100%]">
       <style>

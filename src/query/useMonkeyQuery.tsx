@@ -44,19 +44,12 @@ export default function useMonkeyQuery({name,url,latence = 0,refresh = false,res
       return progress ? progress : 0
     }
 
-    const lifeTimePercent = (): number => {
-      const lifeTime = Math.round((Date.now() - monkeyResponse.stamp) / ((refreshTime)) * 100)
-      return lifeTime ? lifeTime : 0
-    }
 
     useEffect(() => {
-      console.log("Monkey query got effect.")
-      console.log("progressPercent()",progressPercent())
       if (status === "wait" || status === "start" || status === "load" ||status === "success" || !refresh) return
 
       const timer = setInterval(() => {
-        console.log(name," Query is out dated ? ",isOutDated(monkeyResponse.stamp))
-        if (isOutDated(monkeyResponse.stamp ? monkeyResponse.stamp : 0)) get()
+       if (isOutDated(monkeyResponse.stamp ? monkeyResponse.stamp : 0)) get()
           else setMonkeyResponse({...monkeyResponse,status:"standby",progress:{prev:monkeyResponse.progress.next,next: progressPercent()}})
       },3000)
 
@@ -93,8 +86,15 @@ export default function useMonkeyQuery({name,url,latence = 0,refresh = false,res
         try {
           setTimeout(() => {
             const json = JSON.parse(resp.responseText)
-            setMonkeyResponse({...monkeyResponse,status:"completed",stamp:Date.now(),data:json,progress:{prev:monkeyResponse.progress.next,next: 100}})
-          },latence * 3)
+            setMonkeyResponse({...monkeyResponse,
+              status:"completed",
+              stamp:Date.now(),
+              data:json,
+              progress:{
+                prev:75,
+                next: 100}})
+              },
+              latence * 3)
         } catch (error) {
           console.log("making json error",error)
           setTimeout(() => {
@@ -144,7 +144,6 @@ export default function useMonkeyQuery({name,url,latence = 0,refresh = false,res
                 setMonkeyResponse({...monkeyResponse,status:"success",stamp:Date.now(), progress:{prev:50,next: 75}})
                 console.log("onload monkeyResponse ",monkeyResponse)
                 dataMaker(response)
-                console.log("New Monkey store ",JSON.parse(GM_getValue(name)))
               },latence * 2)
             break
             default :
