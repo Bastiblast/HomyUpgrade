@@ -25,6 +25,7 @@
     "@tanstack/virtual-file-routes": "^1.114.29",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "csvtojson": "^2.0.10",
     "lucide-react": "^0.485.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

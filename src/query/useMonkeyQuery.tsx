@@ -1,162 +1,246 @@
-import { Progress } from '@/components/ui/progress';
-import ProgressAnimationDemo from '@/components/ui/progressAnime';
-import { ReactNode } from '@tanstack/react-router'
-import { useEffect, useRef, useState } from 'react'
-import { GM, GM_getValue, GM_setValue, GmResponseEvent } from 'vite-plugin-monkey/dist/client'
+import { useEffect, useRef, useState } from 'react';
+import { GM, GM_getValue, GM_setValue } from 'vite-plugin-monkey/dist/client';
+import { env } from '../../env';
 
 interface MonkeyQueryProps {
-  name: string;
-  url:string;
-  responseType: "json" | "text" | "xml";
-  latence?: number;
-  refresh?: true | false | number
+	name: string;
+	urls: string[];
+	responseType: 'json' | 'text' | 'xml';
+	mutationFn?: (datas: unknown[])  => unknown[];
+	latence?: number;
+	refresh?: true | false | number;
 }
 
 interface progress {
-  prev: number;
-  next:number
+	prev: number;
+	next: number;
 }
+
 interface GMQueryResponse {
-  status: "wait" | "start" | "load" | "abort" | "error" | 'success' | 'completed' | "standby";
-  errorMessage: string;
-  stamp?: number;
-  progress?: progress;
-  lifeTime:number;
-  data: null | string | ReactNode
+	status:
+		| string
+		| 'wait'
+		| 'start'
+		| 'load'
+		| 'abort'
+		| 'error'
+		| 'success'
+		| 'completed'
+		| 'standby';
+	errorMessage?: string | null;
+	stamp?: number;
+	loading: boolean;
+	progress?: progress | null;
+	lifeTime?: number | null;
+	datas?: null | string;
 }
+[];
 
+const initializeMonkeyResponse = {
+	datas: null,
+	stamp: Date.now(),
+	errorMessage: null,
+	loading: true,
+	progress: null,
+	lifeTime: null,
+} as GMQueryResponse;
 
-export default function useMonkeyQuery({name,url,latence = 0,refresh = false,responseType}: MonkeyQueryProps) {
+export default function useMonkeyQuery({
+	name,
+	urls,
+	latence = 0,
+	refresh = false,
+	mutationFn,
+	responseType,
+}: MonkeyQueryProps) {
+	
+	const [response, setResponse] = useState<GMQueryResponse>();
+	const [loading, setLoading] = useState<boolean>();
+	const [status, setStatus] = useState<string>();
+	const [error, setError] = useState<string[]>();
+	const [datas, setDatas] = useState<unknown[]>();
 
+	const stamp = useRef(Date.now());
+	const lifeTime = useRef(0);
 
-    const [monkeyResponse,setMonkeyResponse] = useState<GMQueryResponse>({status:"wait",data:null})
-    const {status} = monkeyResponse
+	const refreshTime = typeof refresh === 'number' ? refresh : 60000;
 
-    const refreshTime = typeof refresh === "number" ? refresh : 5000
+	const isOutDated = (): boolean => {
+		return Date.now() - stamp.current > refreshTime;
+	};
 
+	const progressPercent = (): number | undefined => {
+		const progress = Math.round(
+			((Date.now() - stamp.current) / refreshTime) * 100,
+		);
+		return progress ? progress : 0;
+	};
 
-    const isOutDated = (stamp: number): boolean => {
-      return (Date.now() - stamp) > refreshTime
-    }
+	useEffect(() => {
+		lifeTime.current = Date.now() - stamp.current
+		const newResponse = {	status,
+							stamp: stamp.current,
+							datas,
+							logError: error,
+							lifeTime: lifeTime.current}
+							console.log({newResponse})
+		setResponse(newResponse)
+	},[status,datas,error])
 
-    const progressPercent = (): number => {
-      const progress = Math.round((Date.now() - monkeyResponse.stamp) / ((refreshTime)) * 100)
-      return progress ? progress : 0
-    }
+	useEffect(() => {
+		if (
+			!status || !refresh || status === 'loading' || status === 'fetching' || status === 'making'
+			
+		) return;
 
+		const timer = setInterval(() => {
+			lifeTime.current = Date.now() - stamp.current
+			if (isError(datas) || isOutDated()) {
+				console.log("data need to be fetch")
+				get()}
+			else {
+				setStatus('standby');
+				setResponse({
+					...response,
+					lifeTime: lifeTime.current,
+					status: 'standby',
+				});
+			}
+		}, 3000);
 
-    useEffect(() => {
-      if (status === "wait" || status === "start" || status === "load" ||status === "success" || !refresh) return
+		return () => clearInterval(timer);
+	});
 
-      const timer = setInterval(() => {
-       if (isOutDated(monkeyResponse.stamp ? monkeyResponse.stamp : 0)) get()
-          else setMonkeyResponse({...monkeyResponse,status:"standby",progress:{prev:monkeyResponse.progress.next,next: progressPercent()}})
-      },3000)
+	async function virtualize () {
+			console.log("useQuery getting dev")
+			const mutation = urls.map(url => mutationFn ? mutationFn(url) : url)
+			const newDatas = await Promise.all(mutation)
+			const datas = newDatas.map(data => {
+				return {
+							status: 'completed',
+							data: data,
+							errorMessage: '',
+						}}) 
+			setDatas(datas)
+			console.log("injecting datas",newDatas)
+			console.log("is mutation ?")
+			setStatus('completed')
+			stamp.current = Date.now()
+			setLoading(false)
+	}
 
-      return () => clearInterval(timer)
+	async function get() {
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    },[monkeyResponse])
-    
-    const color = (): string => {
-      if (status === "error") return 'bg-red-500'
-      if (status === "completed") return 'bg-green-500'
-      if (status === 'start' || status === 'load' || status === 'success') return 'bg-blue-500 animate-pulse'
-      if (progressPercent() < 100) return 'bg-green-500'
-      if (progressPercent() < 150) return 'bg-amber-600'
-      else return 'bg-red-500'
-    }
+		if (status === 'fetching') return
+		setLoading(true)
+		setStatus('fetching')
+		
+		if (env === 'developpement') {
+			virtualize ()
+			return
+		}
 
-    const duration = () => {
-      return `transition duration-1000`
-    }
+		const queries = urls.map((url) =>
+			GM.xmlHttpRequest({
+				method: 'GET',
+				url: url,
+			}),
+		);
 
-    function ProgressBar () {
-      return <ProgressAnimationDemo color={color()} duration={duration()} className='h-4' value={monkeyResponse.progress}/>
-    }
+		const responses = await Promise.all(queries);
+		setStatus('making')
 
-    function Alert () {
-      return <div className={color() + ' p-2 rounded-full w-6 h-6'}></div>
-    }
+		const datas = responses.map((response) => makeResponse(response));
 
-    function dataMaker (resp: GmResponseEvent<"text", unknown>) {
-      switch (responseType) {
-        case "json": 
-        console.log("monkeyQuery jsonify",status)
-        try {
-          setTimeout(() => {
-            const json = JSON.parse(resp.responseText)
-            setMonkeyResponse({...monkeyResponse,
-              status:"completed",
-              stamp:Date.now(),
-              data:json,
-              progress:{
-                prev:75,
-                next: 100}})
-              },
-              latence * 3)
-        } catch (error) {
-          console.log("making json error",error)
-          setTimeout(() => {
-            setMonkeyResponse({...monkeyResponse,status:"error", errorMessage:error.toString(), progress:{prev:monkeyResponse.progress.next,next: 100}})
-          },latence * 3)
-        }
-        break
-        case "text":
-          setMonkeyResponse({...monkeyResponse,status:"completed",stamp:Date.now(),data:resp.responseText,progress:{prev:monkeyResponse.progress.next,next: 100}})
-        break
-        case "xml":
-        break
-      }
-    }
+		console.log({datas})
+		setDatas(datas)
+		setStatus(isError(datas) ? 'error' : 'completed')
+		stamp.current = Date.now()
+		setLoading(false)
+	}
 
+	const mutate = (datas: unknown[]) => mutationFn!(datas)
 
-    function get ()  {
-      
-        GM.xmlHttpRequest({
-        method: "GET",
-        url: url,
-        headers: {
-         // "Accept": "text/xml"            // If not specified, browser defaults will be used.
-        },
-        onloadstart: function () {
-          console.log("start return",{...monkeyResponse,status:"start"})
-            setMonkeyResponse({...monkeyResponse,status:"start",progress:{prev:0,next: 15}})
-        },
-        onprogress: function () {
-          setTimeout(() => {
-          console.log("load return",{...monkeyResponse,status:"load"})
-            setMonkeyResponse({...monkeyResponse,status:"load",progress:{prev:15,next: 50}})
-         } ,latence 
-          )
-        },
-        onabort: function () {
-          setMonkeyResponse({...monkeyResponse,status:"abort",stamp:Date.now(),progress:{prev:75,next: 100}})
-        },        
-        onerror: function (response) {
-          console.log("query error")
-          setMonkeyResponse({...monkeyResponse,status:"error", errorMessage:response.responseText, progress:{prev:75,next: 100}})
-        },
-        onload: function(response) {
-          switch (response.status) {
-            case (200) :
-              setTimeout(() => {
-                setMonkeyResponse({...monkeyResponse,status:"success",stamp:Date.now(), progress:{prev:50,next: 75}})
-                console.log("onload monkeyResponse ",monkeyResponse)
-                dataMaker(response)
-              },latence * 2)
-            break
-            default :
-            console.log({response})
-              setTimeout(() => {
-                setMonkeyResponse({...monkeyResponse ,status:"error", errorMessage:response.responseText, progress:{prev:75,next: 100}})
-              },latence * 2)
-            break
-          }
-        }
-      })
-      
-    }
+	const isError = (datas) => datas && datas.find(data => data.status === 'error')
+	
+	const color = (): string => {
+		const invalidState = ['error'];
+		if (!status || invalidState.includes(status)) return 'bg-red-500';
+		const validState = ['completed', 'standby'];
+		if (validState.includes(status)) return 'bg-green-500';
+		const loadState = ['start', 'load', 'success'];
+		if (loadState.includes(status) || !progressPercent())
+			return 'bg-blue-500 animate-pulse';
 
-  return ({monkeyResponse,get,ProgressBar,Alert})
+		if (progressPercent() < 100) return 'bg-green-500';
+		if (progressPercent() < 150) return 'bg-amber-600';
+		else return 'bg-red-500';
+	};
+
+	/*
+	function ProgressBar() {
+		return (
+			<ProgressAnimationDemo
+				color={color()}
+				duration={`transition duration-1000`}
+				className="h-4"
+				value={response.progress}
+			/>
+		);
+	}
+*/
+	function Alert() {
+		return <div className={color() + ' h-6 w-6 rounded-full p-2'}></div>;
+	}
+
+	async function makeResponse(resp: any) {
+		if (resp.status !== 200) {
+			const time = new Date().toTimeString().slice(0,8)
+			const errorMessage = `${time} = server respond with ${resp.status} error status from "${resp.finalUrl}"`
+			const addError = Array.isArray(error) && error.length > 0 ? [...error,errorMessage] : [errorMessage]
+			setError(addError)
+			setStatus("error")
+
+			return {
+							status: 'error',
+							data: null,
+							errorMessage: errorMessage,
+						};
+		}
+		switch (responseType) {
+			case 'json':
+				console.log('monkeyQuery jsonify', status);
+				try {
+						const json = JSON.parse(resp.responseText);
+						const data = mutationFn ? await mutationFn(json) : json
+						return {
+							status: 'completed',
+							data: data,
+							errorMessage: '',
+						};
+				} catch (error) {
+					console.log('making json error', error);
+					const addError = Array.isArray(error) && error.length > 0 ? [...error,error] : [error]
+					setError(addError)
+
+					return {
+							status: 'error',
+							data: null,
+							errorMessage: error,
+						};
+				}
+			case 'text':
+				console.log("query monkey with text, is mutation ? ",mutationFn ? true : false)	
+						const data = mutationFn ? await mutationFn(resp.responseText) : resp.responseText
+				return {
+							status: 'completed',
+							data: data,
+							errorMessage: '',
+						};
+			case 'xml':
+				break;
+		}
+	}
+
+	return { response, get,  Alert,loading };
 }
