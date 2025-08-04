@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { GM, GM_getValue, GM_setValue } from 'vite-plugin-monkey/dist/client';
 import { env } from '../../env';
+import { GmAsyncXmlhttpRequestReturnType } from '$';
 
 interface MonkeyQueryProps {
 	name: string;
 	urls: string[];
-	responseType: 'json' | 'text' | 'xml';
 	mutationFn?: (datas: unknown[])  => unknown[];
 	latence?: number;
 	refresh?: true | false | number;
@@ -51,7 +51,6 @@ export default function useMonkeyQuery({
 	latence = 0,
 	refresh = false,
 	mutationFn,
-	responseType,
 }: MonkeyQueryProps) {
 	
 	const [response, setResponse] = useState<GMQueryResponse>();
@@ -110,7 +109,22 @@ export default function useMonkeyQuery({
 
 		return () => clearInterval(timer);
 	});
+	const isError = (datas) => datas && datas.find(data => data.status === 'error')
+	
+	const color = (): string => {
+		const invalidState = ['error'];
+		if (!status || invalidState.includes(status)) return 'bg-red-500';
+		const validState = ['completed', 'standby'];
+		if (validState.includes(status)) return 'bg-green-500';
+		const loadState = ['start', 'load', 'success'];
+		if (loadState.includes(status) || !progressPercent())
+			return 'bg-blue-500 animate-pulse';
 
+		if (progressPercent() < 100) return 'bg-green-500';
+		if (progressPercent() < 150) return 'bg-amber-600';
+		else return 'bg-red-500';
+	};
+	
 	async function virtualize () {
 			console.log("useQuery getting dev")
 			const mutation = urls.map(url => mutationFn ? mutationFn(url) : url)
@@ -134,48 +148,54 @@ export default function useMonkeyQuery({
 		if (status === 'fetching') return
 		setLoading(true)
 		setStatus('fetching')
-		
-		if (env === 'developpement') {
-			virtualize ()
-			return
-		}
 
-		const queries = urls.map((url) =>
-			GM.xmlHttpRequest({
-				method: 'GET',
-				url: url,
-			}),
-		);
+		let queries,responses,statusHandler
 
-		const responses = await Promise.all(queries);
+		switch (env) {
+			case 'developpement' :
+				statusHandler = urls
+				break;
+			case 'production' :
+				queries = urls.map((url) =>
+					GM.xmlHttpRequest({
+						method: 'GET',
+						url: url,
+					}),
+				);
+				responses = await Promise.all(queries);
+				console.log({responses})
+				statusHandler = responses.map(resp => queryHandler(resp));
+				
+			}
+			
+		console.log({statusHandler})
 		setStatus('making')
 
-		const datas = responses.map((response) => makeResponse(response));
+		const datas = statusHandler.map((response) => makeResponse(response));
 
-		console.log({datas})
-		setDatas(datas)
-		setStatus(isError(datas) ? 'error' : 'completed')
+		const makes = await Promise.all(datas)
+		console.log({makes})
+		setDatas(makes)
+		setStatus(isError(makes) ? 'error' : 'completed')
 		stamp.current = Date.now()
 		setLoading(false)
 	}
 
-	const mutate = (datas: unknown[]) => mutationFn!(datas)
 
-	const isError = (datas) => datas && datas.find(data => data.status === 'error')
-	
-	const color = (): string => {
-		const invalidState = ['error'];
-		if (!status || invalidState.includes(status)) return 'bg-red-500';
-		const validState = ['completed', 'standby'];
-		if (validState.includes(status)) return 'bg-green-500';
-		const loadState = ['start', 'load', 'success'];
-		if (loadState.includes(status) || !progressPercent())
-			return 'bg-blue-500 animate-pulse';
+	const queryHandler = (resp: GmAsyncXmlhttpRequestReturnType<"text", unknown>) => {
+		console.log({resp})
+		if (resp.status !== 200) {
+			const time = new Date().toTimeString().slice(0,8)
+			const errorMessage = `${time} = server respond with ${resp.status} error status from "${resp.finalUrl}"`
+			const addError = Array.isArray(error) && error.length > 0 ? [...error,errorMessage] : [errorMessage]
+			setError(addError)
+			setStatus("error")
 
-		if (progressPercent() < 100) return 'bg-green-500';
-		if (progressPercent() < 150) return 'bg-amber-600';
-		else return 'bg-red-500';
-	};
+			return errorMessage
+		} else {
+			return resp.responseText
+		}
+	}
 
 	/*
 	function ProgressBar() {
@@ -193,53 +213,35 @@ export default function useMonkeyQuery({
 		return <div className={color() + ' h-6 w-6 rounded-full p-2'}></div>;
 	}
 
-	async function makeResponse(resp: any) {
-		if (resp.status !== 200) {
-			const time = new Date().toTimeString().slice(0,8)
-			const errorMessage = `${time} = server respond with ${resp.status} error status from "${resp.finalUrl}"`
-			const addError = Array.isArray(error) && error.length > 0 ? [...error,errorMessage] : [errorMessage]
-			setError(addError)
-			setStatus("error")
+	async function makeResponse(responseText: any) {
+		console.log("make response ",responseText)
 
-			return {
+				console.log("query monkey with text, is mutation ? ",mutationFn ? true : false)	
+				const data = mutationFn ? await mutationFn(responseText) : responseText
+				console.log('data ',data)
+				const isMutationError = typeof data === 'string'  && data.includes('error') ? true : false
+				console.log('data ',data,isMutationError)
+				switch (isMutationError) {
+					case true :
+						return {
 							status: 'error',
-							data: null,
-							errorMessage: errorMessage,
+							data: data,
+							errorMessage: 'mutation error',
 						};
-		}
-		switch (responseType) {
-			case 'json':
-				console.log('monkeyQuery jsonify', status);
-				try {
-						const json = JSON.parse(resp.responseText);
-						const data = mutationFn ? await mutationFn(json) : json
+					case false : 
 						return {
 							status: 'completed',
 							data: data,
 							errorMessage: '',
 						};
-				} catch (error) {
-					console.log('making json error', error);
-					const addError = Array.isArray(error) && error.length > 0 ? [...error,error] : [error]
-					setError(addError)
 
-					return {
-							status: 'error',
-							data: null,
-							errorMessage: error,
-						};
 				}
-			case 'text':
-				console.log("query monkey with text, is mutation ? ",mutationFn ? true : false)	
-						const data = mutationFn ? await mutationFn(resp.responseText) : resp.responseText
 				return {
 							status: 'completed',
 							data: data,
 							errorMessage: '',
 						};
-			case 'xml':
-				break;
-		}
+
 	}
 
 	return { response, get,  Alert,loading };

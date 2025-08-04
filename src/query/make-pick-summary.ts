@@ -1,12 +1,34 @@
 import csv from 'csvtojson';
 
+const getRodeoPickDataReturn = [
+    [
+        "2025-07-21 17:00",
+        5
+    ],
+    [
+        "2025-07-21 20:00",
+        1655
+    ],
+    [
+        "2025-07-21 20:30",
+        1027
+    ],
+    [
+        "2025-07-21 23:30",
+        262
+    ],
+    [
+        "2025-07-21 23:45",
+        2363
+    ]
+]
 
 export default async function getRodeoPickData  (monkeyResponse)  {
 
 	
 		const CPTMap = new Map();
 
-		//console.log("pickData response",response)
+		console.log("pickData response",monkeyResponse)
 
 		const alternateConvert = await csv().fromString(monkeyResponse);
 
@@ -38,8 +60,13 @@ export default async function getRodeoPickData  (monkeyResponse)  {
 		});
 
 		const CPTArray = [...CPTMap].sort();
-		//console.log({CPTArray})$
-		const timeBeforeNextCPT =(new Date(CPTArray[0][0]) - Date.now()) / 60 / 60 / 1000;
+		console.log({CPTArray})
+		//const timeBeforeNextCPT =(new Date(CPTArray[0][0]) - Date.now()) / 60 / 60 / 1000;
 		//console.log({timeBeforeNextCPT} )
-        return CPTArray
+
+		const isValid = typeof getRodeoPickDataReturn === typeof CPTArray
+		const isEmpty = CPTArray.length === 0 
+		const mutated = !isValid || isEmpty ? "error on mutation, data don't look as expected or feed is empty"  : CPTArray
+		console.log({mutated},isEmpty)
+        return mutated
 	}

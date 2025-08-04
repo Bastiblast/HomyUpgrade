@@ -4,11 +4,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 export default function TablePick() {
 
-    const {pickSummary} = useContext(DataCenterContext)
+    const {pickResponse} = useContext(DataCenterContext)
+
+    console.log({pickResponse})
 
   return (
     <Card>
       <CardHeader>
+        {pickResponse.Alert()}
         <CardTitle>
           Pick Summary
         </CardTitle>
@@ -17,7 +20,7 @@ export default function TablePick() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-      <div onClick={() => pickSummary.getpickResponse()}>{pickSummary && JSON.stringify(pickSummary)}</div>
+      <div onClick={() => pickResponse.get()}>{pickResponse.response && JSON.stringify(pickResponse.response)}</div>
 
       </CardContent>
     </Card>

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { uzeStore } from '../store/uzeStore';
 import usePick from './usePick';
 import CapaTable from './CapaTable';
@@ -7,11 +7,13 @@ import GetThePlan from './nail-the-plan/card-plan';
 import CardWash from './wash-my-buffer/card-wash';
 import Loader from '../store/loader-component';
 import useMonkeyQuery from '../query/useMonkeyQuery';
-import FetchPickSummary from '../query/datacenter-contextAndProvider';
+import FetchPickSummary, { DataCenterContext } from '../query/datacenter-contextAndProvider';
 import TablePick from './nail-the-plan/pick-remain/table-pick';
 
 export default function BonusButton({ data }) {
 
+		const {pdpDatas} = useContext(DataCenterContext)
+	
 		const urls = [
 			'https://jsonplaceholder.typicode.com/todos/1',
 			'https://jsonplaceholder.typicode.com/posts/1',
@@ -131,7 +133,7 @@ export default function BonusButton({ data }) {
 				PLAN
 			</button>
 			<button
-				onClick={handlePDP}
+				onClick={() => pdpDatas.getPdpResponse()}
 				className="bg-red-400 shadow-md m-1 rounded-none w-16 btn"
 				disabled={bonusDisabled}
 			>
