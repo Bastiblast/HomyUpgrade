@@ -14,10 +14,10 @@ export default function Modal() {
 			</button>
 			<dialog
 				id="my_modal_5"
-				className="modal modal-bottom sm:modal-middle"
+				className="modal-bottom modal sm:modal-middle"
 			>
 				<div className="modal-box">
-					<h3 className="text-lg font-bold">Hello!</h3>
+					<h3 className="font-bold text-lg">Hello!</h3>
 					<p className="py-4">
 						Press ESC key or click the button below to close
 					</p>

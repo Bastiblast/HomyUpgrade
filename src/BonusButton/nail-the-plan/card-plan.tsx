@@ -1,8 +1,19 @@
-export default function GetThePlan({ plan }) {
-	if (!plan) return;
+import { DataCenterContext } from "@/query/datacenter-contextAndProvider";
+import { useContext } from "react";
 
-	console.log('plan in card', plan);
-	const { data } = plan;
+export default function GetThePlan() {
+
+	const {planQuery} = useContext(DataCenterContext)
+	console.log({planQuery})
+	if (!planQuery.response.datas) return;
+	const responses = planQuery.response.datas
+	console.log("responses in card plan ",responses)
+	const [response] = responses
+	console.log("response in card plan ",response)
+
+	const [data] = response.data
+	
+	console.log('plan in card', data);
 
 	const date = new Date(data.sent_timestamp);
 	const dateHour = date.getHours();
@@ -12,12 +23,12 @@ export default function GetThePlan({ plan }) {
 	console.log({ date }, { dateHour }, { localDate }, { stringDate });
 
 	return (
-		<div className="flex h-full w-full p-2">
+		<div className="flex p-2 w-full h-full">
 			{!data ? (
 				<div>getThedata</div>
 			) : (
 				<div>
-					<div className="card-border card bg-base-100">
+					<div className="bg-base-100 card-border card">
 						<div className="">
 							<h2 className="card-title">{data.pack_station}</h2>
 							<div className="grid grid-cols-2">

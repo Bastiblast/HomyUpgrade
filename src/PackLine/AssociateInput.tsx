@@ -1,10 +1,18 @@
-import React, { useMemo } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { uzeStore } from '../store/uzeStore';
+import { DataCenterContext } from '@/query/datacenter-contextAndProvider';
 
 export default function AssociateInput({ poste }) {
 	const headcount = uzeStore((s) => s.headcount);
 	const updateHeadcount = uzeStore((s) => s.updateHeadcount);
-	const PDPFiltereddata = uzeStore((s) => s.PDPFiltereddata);
+
+	
+
+	const {pdpQuery} = useContext(DataCenterContext)
+	if (!pdpQuery.response.datas) return
+	const PDPFiltereddata = pdpQuery.response.datas[0].data
+	
+	console.log({PDPFiltereddata})
 
 	const handleHC = (event) => {
 		const poste = event.target.name;
@@ -13,10 +21,10 @@ export default function AssociateInput({ poste }) {
 		event.target.value
 			? newHC[ligne].set(poste, event.target.value)
 			: newHC[ligne].delete(poste);
-		updateHeadcount(newHC);
+		//updateHeadcount(newHC);
 	};
 
-	const getValue = (PDPFiltereddata) => {
+	const getValue = () => {
 		if (!PDPFiltereddata) return '';
 		const newValue = PDPFiltereddata.filter((row) => {
 			return row[3].includes(poste);
@@ -31,7 +39,7 @@ export default function AssociateInput({ poste }) {
 			posteNumber,
 			`${newValue[0]} - ${newValue[5]}`,
 		);
-		updateHeadcount(newHC);
+		//updateHeadcount(newHC);
 		const firstLettreName = newValue[0].substring(0, 1);
 		const lastNameIndex = newValue[0].indexOf(',');
 		const lastName = newValue[0].substring(lastNameIndex);
@@ -40,18 +48,17 @@ export default function AssociateInput({ poste }) {
 			newValue[5].length > 0
 				? `/!\\${newName}-${newValue[5]}`
 				: `${newName}`;
+				console.log({returnedValue})
 		return returnedValue;
 	};
 
-	const placeHolder = useMemo(() => {
-		return getValue(PDPFiltereddata);
-	}, [PDPFiltereddata]);
+
 
 	return (
 		<input
 			onKeyUp={handleHC}
-			defaultValue={placeHolder}
-			className="h-8 w-24 bg-white p-2"
+			defaultValue={getValue()}
+			className="bg-white p-2 w-24 h-8"
 			type="text"
 			name={poste}
 			id=""

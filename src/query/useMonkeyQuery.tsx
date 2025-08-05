@@ -6,7 +6,7 @@ import { GmAsyncXmlhttpRequestReturnType } from '$';
 interface MonkeyQueryProps {
 	name: string;
 	urls: string[];
-	mutationFn?: (datas: unknown[])  => unknown[];
+	mutationFn?: (responseText: string)  => unknown;
 	latence?: number;
 	refresh?: true | false | number;
 }
@@ -16,7 +16,7 @@ interface progress {
 	next: number;
 }
 
-interface GMQueryResponse {
+export interface GMQueryResponse {
 	status:
 		| string
 		| 'wait'
@@ -88,11 +88,12 @@ export default function useMonkeyQuery({
 
 	useEffect(() => {
 		if (
-			!status || !refresh || status === 'loading' || status === 'fetching' || status === 'making'
+			!refresh || status === 'loading' || status === 'fetching' || status === 'making'
 			
 		) return;
 
 		const timer = setInterval(() => {
+			console.log("refreshing query")
 			lifeTime.current = Date.now() - stamp.current
 			if (isError(datas) || isOutDated()) {
 				console.log("data need to be fetch")

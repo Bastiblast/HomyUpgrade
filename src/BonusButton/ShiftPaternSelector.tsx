@@ -1,10 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { uzeStore } from '../store/uzeStore';
+import { DataCenterContext } from '@/query/datacenter-contextAndProvider';
 
 export default function ShiftPaternSelector() {
-	const selector = useRef(null);
 
-	const PDPData = uzeStore((s) => s.PDPdata);
+	const {pdpQuery} = useContext(DataCenterContext)
+	const selector = useRef(null);
+	console.log({pdpQuery})
+	if (!pdpQuery.response.datas) return
+	const PDPData = pdpQuery.response.datas[0].data[0]
+	console.log({PDPData})
 	const updatePDPFilteredData = uzeStore((s) => s.updatePDPFilteredData);
 	const updateIBC = uzeStore((s) => s.updateIBC);
 
@@ -35,16 +40,16 @@ export default function ShiftPaternSelector() {
 	};
 
 	return (
-		<div className="m-2 mt-6 flex justify-between align-middle">
-			<span className="text-md my-auto font-bold">
+		<div className="flex justify-between m-2 mt-6 align-middle">
+			<span className="my-auto font-bold text-md">
 				Selectionner votre Shift :
 			</span>
-			<select ref={selector} className="text-md select mx-3">
+			<select ref={selector} className="mx-3 text-md select">
 				{renderOptions()}
 			</select>
 			<button
 				onClick={handleSumitPDP}
-				className="btn btn-primary btn-md my-auto"
+				className="my-auto btn btn-primary btn-md"
 			>
 				Importer la PDP
 			</button>

@@ -1,17 +1,19 @@
 import React, { useContext } from 'react'
-import {DataCenterContext} from '../../../query/datacenter-contextAndProvider'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { DataCenterContext } from '@/query/datacenter-contextAndProvider'
 
 export default function TablePick() {
 
-    const {pickResponse} = useContext(DataCenterContext)
+    const {pickQuery} = useContext(DataCenterContext)
 
-    console.log({pickResponse})
+
+    console.log({pickQuery})
 
   return (
     <Card>
       <CardHeader>
-        {pickResponse.Alert()}
+        {//pickQuery.Alert()
+        }
         <CardTitle>
           Pick Summary
         </CardTitle>
@@ -20,7 +22,7 @@ export default function TablePick() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-      <div onClick={() => pickResponse.get()}>{pickResponse.response && JSON.stringify(pickResponse.response)}</div>
+      <div onClick={() => pickQuery.get()}>{pickQuery?.response && JSON.stringify(pickQuery.response)}</div>
 
       </CardContent>
     </Card>

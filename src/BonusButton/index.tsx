@@ -8,25 +8,17 @@ import CardWash from './wash-my-buffer/card-wash';
 import Loader from '../store/loader-component';
 import useMonkeyQuery from '../query/useMonkeyQuery';
 import FetchPickSummary, { DataCenterContext } from '../query/datacenter-contextAndProvider';
-import TablePick from './nail-the-plan/pick-remain/table-pick';
+import TablePick from './pick-remain/table-pick';
+import ShiftPaternSelector from './ShiftPaternSelector';
 
 export default function BonusButton({ data }) {
 
-		const {pdpDatas} = useContext(DataCenterContext)
-	
-		const urls = [
-			'https://jsonplaceholder.typicode.com/todos/1',
-			'https://jsonplaceholder.typicode.com/posts/1',
-		]
-		const {get,monkeyResponse} = useMonkeyQuery({name: 'getRodeo',urls: urls, responseType: "json"})
-		
+		const {pdpQuery,planQuery,pickQuery,pickedQuery} = useContext(DataCenterContext)
+
 	const { renderPick } = usePick();
 
 	const updatePDPData = uzeStore((s) => s.updatePDPData);
-	const getRodeoPickData = uzeStore((s) => s.getRodeoPickData);
 
-	const updatePickRefresher = uzeStore((s) => s.updatePickRefresher);
-	const getRodeoCapa = uzeStore((s) => s.getRodeoCapa);
 	const dataCapaAge = uzeStore((s) => s.dataCapaAge);
 
 	const updateCapaRefresher = uzeStore((s) => s.updateCapaRefresher);
@@ -37,10 +29,7 @@ export default function BonusButton({ data }) {
 	const refresher = uzeStore((s) => s.refresher);
 	const refresherCapa = uzeStore((s) => s.refresherCapa);
 	const refresherPick = uzeStore((s) => s.refresherPick);
-	const bonusDisabled =
-		refresher === 'loading' ||
-		refresherCapa.includes('loading') ||
-		refresherPick === 'loading';
+	const bonusDisabled = false
 
 	const fullInfo = uzeStore((s) => s.fullInfo);
 	const updateFullInfo = uzeStore((s) => s.updateFullInfo);
@@ -64,104 +53,48 @@ export default function BonusButton({ data }) {
 		return isOutDated;
 	};
 
-	const handlePDP = () => {
-		//console.log("click")
-		updatePDPData();
-	};
 
-	useEffect(() => {
-		const newIBCContent = renderPick(dataPick);
-		//console.log("refresh and upload new IBC from index ",newIBCContent)
-		updateIBC(renderPick(dataPick));
-	}, []);
 
-	const handlePick = async () => {
-		updateIBC(<TablePick />);
-	};
-
-	
-
-	useEffect(() => {
-		if (!dataCapa) return;
-		//console.log("update IBC with dataCapa : ",dataCapa)
-		updateIBC(<CapaTable data={dataCapa} />);
-	}, [dataCapa]);
-
-	const handleCapa = async () => {
-		if (
-			isOutDated(dataCapaAge, 180) !== undefined &&
-			!isOutDated(dataCapaAge, 180)
-		) {
-			console.log(
-				'Capacity data is out dated ? ',
-				!isOutDated(dataCapaAge, 180),
-			);
-			updateIBC(<CapaTable data={dataCapa} />);
-		} else {
-			console.log('Capacity data fetching...');
-
-			updateIBC(<Loader>Loading...</Loader>);
-			updateCapaRefresher('loading');
-		}
-	};
-
-	const handleDelete = () => {
-		GM_deleteValue('Homy_capacityDetails');
-	};
-
-	const handlePLAN = () => {
-		console.log('data', data);
-		updateIBC(<GetThePlan plan={data.plan} />);
-	};
-
-	const handleWash = () => {
-		updateIBC(<CardWash />);
-	};
-
-	const handleInfo = () => {
-		updateIBC(<TablePick/>)
-		updateFullInfo(!fullInfo);
-	};
-
+	console.log({planQuery})
 	return (
 		<div className="justify-evenly grid grid-cols-2 grid-rows-3 pt-3 h-full">
 			<button
-				onClick={handlePLAN}
+				onClick={() => planQuery.get() && updateIBC(<GetThePlan/>)}
 				className="bg-red-400 shadow-md m-1 rounded-none w-16 btn"
 				disabled={bonusDisabled}
 			>
 				PLAN
 			</button>
 			<button
-				onClick={() => pdpDatas.getPdpResponse()}
+				onClick={() => pdpQuery.get()}
 				className="bg-red-400 shadow-md m-1 rounded-none w-16 btn"
 				disabled={bonusDisabled}
 			>
 				PDP
 			</button>
 			<button
-				onClick={handleCapa}
+				onClick={() => null}
 				className="bg-red-400 shadow-md m-1 rounded-none w-16 btn"
 				disabled={bonusDisabled}
 			>
 				PRIO
 			</button>
 			<button
-				onClick={handlePick}
+				onClick={() => pickQuery.get() && updateIBC(<TablePick/>)}
 				className="bg-red-400 shadow-md m-1 rounded-none w-16 btn"
 				disabled={bonusDisabled}
 			>
 				PICK
 			</button>
 			<button
-				onClick={handleWash}
+				onClick={() => null}
 				className="bg-red-400 shadow-md m-1 rounded-none w-16 btn"
 				disabled={bonusDisabled}
 			>
 				WASH
 			</button>
 			<button
-				onClick={handleInfo}
+				onClick={() => pickedQuery.get()}
 				className="bg-red-400 shadow-md m-1 rounded-none w-16 btn"
 				disabled={bonusDisabled}
 			>

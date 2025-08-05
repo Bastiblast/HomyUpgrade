@@ -4,88 +4,25 @@ import { uzeStore } from './store/uzeStore';
 import InfoBox from './PackLine/InfoBox';
 import TotalHeadCount from './PackLine/TotalHeadCount';
 import BonusButton from './BonusButton/index';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { GM_getValue, GM_setValue } from '$';
 import {
 	singlePlanTemplate,
 	getLastPlanSingle,
 } from './BonusButton/nail-the-plan/get-lastSinglePlan';
 import ActivityDetails from './activityDetails';
-import useMonkeyQuery from './query/useMonkeyQuery';
-import FetchPickSummary from './query/datacenter-contextAndProvider';
 import DataCenterContext from './query/datacenter-contextAndProvider';
 
 
 
 function App() {
 
-
-
-	const totalHeadCount = uzeStore((s) => s.totalHeadCount);
-	const updateTotalHeadCount = uzeStore((s) => s.updateTotalHeadCount);
-
-	const updateRefresher = uzeStore((s) => s.updateRefresher);
 	const refresher = uzeStore((s) => s.refresher);
 	const updateCapacityDetails = uzeStore((s) => s.updateCapacityDetails);
 	const updatePickRefresher = uzeStore((s) => s.updatePickRefresher);
 
 	const pageTime = uzeStore((s) => s.pageTime);
-	const updatePageTime = uzeStore((s) => s.updatePageTime);
 
-	const environnement = uzeStore((s) => s.environnement);
-	const [plan, setPlan] = useState<(typeof singlePlanTemplate)[0] | null>(
-		null,
-	);
-
-	const refreshHandle = () => {
-		updateRefresher('loading');
-	};
-
-	const updatePlan = () => {
-		//console.log({plan})
-		if (
-			plan &&
-			(environnement === 'developpement'
-				? pageTime
-				: Date.now() - plan.stamp < 30000)
-		) {
-			//console.log("fresh data return")
-			return;
-		} else {
-			//console.log("getting new data")
-			getLastPlanSingle(environnement).then((newPlan) => {
-				setPlan({
-					...plan,
-					data: newPlan[0],
-					stamp:
-						environnement === 'developpement'
-							? pageTime
-							: Date.now(),
-					update: updatePlan,
-				});
-				if (totalHeadCount === 0) {
-					updateTotalHeadCount(newPlan[0].planned_hc);
-				}
-			});
-		}
-	};
-
-	useEffect(() => {
-		const stamp = environnement === 'developpement' ? pageTime : Date.now();
-
-		const timer = setInterval(() => {
-			updatePageTime(stamp);
-			updatePlan();
-		}, 10000);
-		return () => clearInterval(timer);
-	}, [pageTime]);
-
-	useEffect(() => {
-		const timer = setInterval(() => {
-			updateRefresher('loading');
-		}, 45000);
-		return () => clearInterval(timer);
-	}, []);
 
 	useEffect(() => {
 		//console.log({pageTime})
@@ -104,24 +41,6 @@ function App() {
 		updatePickRefresher('loading');
 	});
 
-	useEffect(() => {
-		console.log('timer', pageTime);
-		const timer = setInterval(() => {
-			console.log('start interval');
-			updatePickRefresher('loading');
-			getLastPlanSingle(environnement).then((newPlan) => {
-				setPlan({
-					...plan,
-					data: newPlan[0],
-					stamp:
-						environnement === 'developpement'
-							? pageTime
-							: Date.now(),
-				});
-			});
-		}, 30000);
-		return () => clearInterval(timer);
-	}, []);
 
 	return (
 		<DataCenterContext>
@@ -135,7 +54,7 @@ function App() {
 						<div className="flex flex-row">
 							<MultiSelectorBtn />
 
-							{refresher === 'loading' ? (
+							{!refresher === 'loading' ? (
 								<button
 									className="mx-2 w-20 text-white btn"
 									disabled
@@ -144,15 +63,18 @@ function App() {
 								</button>
 							) : (
 								<button
+								onClick={() => console.log("click")}
 									className="mx-2 w-20 btn"
-									onClick={refreshHandle}
 								>
 									Refresh
 								</button>
 							)}
 						</div>
 					</div>
-					<BonusButton data={{ plan }} />
+					<div>
+
+					<BonusButton/>
+					</div>
 					<div>
 						<ActivityDetails />
 					</div>
@@ -160,7 +82,6 @@ function App() {
 				</header>
 
 				<PackLine />
-				<FetchPickSummary/>
 			</div>
 		</DataCenterContext>
 	);

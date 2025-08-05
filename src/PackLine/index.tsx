@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { uzeStore } from '../store/uzeStore';
 import RenderTote from './Tote';
 import RenderBuffer from './Buffer';
@@ -6,40 +6,34 @@ import HeadCount from './HeadCount';
 import AssociateInput from './AssociateInput';
 import searchOnRodeo from './onRodeoSearch';
 import fetchRodeoIco from '../BonusButton/fetch-rodeo-ico';
+import { DataCenterContext } from '@/query/datacenter-contextAndProvider';
 
 export default function PackLine() {
+
+	const {pickedQuery} = useContext(DataCenterContext)
+	const ico = useRef(null);
+
+console.log({pickedQuery})
+
 	const posteMapping = uzeStore((s) => s.singleLaneMapping);
 
-	const getRodeoData = uzeStore((s) => s.getRodeoData);
-
-	const dataTotal = uzeStore((s) => s.dataTotal);
 	const capacityDetails = uzeStore((s) => s.capacityDetails);
 
-	useEffect(() => {
-		getRodeoData();
-	}, []);
 
-	const ico = useRef(null);
 	const day = uzeStore((s) => s.day);
 	const infoBoxRef = uzeStore((s) => s.infoBoxRef);
 	const pageTime = uzeStore((s) => s.pageTime);
 	const headcount = uzeStore((s) => s.headcount);
-	const updateTotalHeadCount = uzeStore((s) => s.updateTotalHeadCount);
 	const UPH = uzeStore((s) => s.UPH);
-	const environnement = uzeStore((s) => s.environnement);
 	const TBCPT = uzeStore((s) => s.TBCPT);
-	const valuesArray = Object.values(headcount);
 
-	const newTotalHeadCount = valuesArray.reduce(
-		(acc, val) => acc + val.size,
-		0,
-	);
+
 
 	const fullInfo = uzeStore((s) => s.fullInfo);
 
-	useEffect(() => {
-		updateTotalHeadCount(newTotalHeadCount);
-	}, [newTotalHeadCount]);
+	if (!pickedQuery.response?.datas) return
+	const [response] = pickedQuery.response.datas
+	const dataTotal = response.data
 
 	return (
 		<>
@@ -126,9 +120,9 @@ export default function PackLine() {
 										className={stationColor}
 										key={'L1' + '-' + poste}
 									>
-										<div className="flex w-full flex-row items-center">
+										<div className="flex flex-row items-center w-full">
 											<div className="relative">
-												<span className="rounded-md bg-lime-400 p-2">
+												<span className="bg-lime-400 p-2 rounded-md">
 													{String(poste)}
 												</span>
 												{renderUnits && (
@@ -138,7 +132,7 @@ export default function PackLine() {
 																stationSearchParams,
 															)
 														}
-														className="absolute -top-1 right-0 z-10 h-1/2 w-4 transition-all hover:-translate-x-1 hover:translate-y-1 hover:scale-150"
+														className="-top-1 right-0 z-10 absolute w-4 h-1/2 hover:scale-150 transition-all hover:-translate-x-1 hover:translate-y-1"
 														ref={ico}
 														src="https://rodeo-dub.amazon.com/resources/images/rodeo-favicon.gif"
 													></img>
@@ -150,6 +144,7 @@ export default function PackLine() {
 
 											<div className="flex flex-row">
 												<RenderTote
+													data={dataTotal}
 													inductPrio={{
 														prioCPT: nextCPT,
 														potentiel,
@@ -160,8 +155,9 @@ export default function PackLine() {
 													day={day}
 													infoBoxRef={infoBoxRef}
 												/>
-												<div className="divider divider-horizontal mx-0 p-0"></div>
+												<div className="mx-0 p-0 divider divider-horizontal"></div>
 												<RenderTote
+													data={dataTotal}
 													inductPrio={{
 														prioCPT: nextCPT,
 														potentiel,

@@ -1,7 +1,6 @@
 import { uzeStore } from '../store/uzeStore';
 
-export default function RenderPoste({ dropzone, inductPrio }) {
-	const data = uzeStore((s) => s.data);
+export default function RenderPoste({ dropzone, inductPrio, data }) {
 	const updateDataTotal = uzeStore((s) => s.updateDataTotal);
 	const updateIBC = uzeStore((s) => s.updateIBC);
 	const dataTotal = uzeStore((s) => s.dataTotal);
@@ -149,8 +148,8 @@ const handleToteLook = (totes, event, updateIBC) => {
 
 	updateIBC(
 		<>
-			<div className="m-3 mb-5 grid grid-flow-row grid-cols-4 grid-rows-4 bg-slate-100">
-				<div className="col-span-4 bg-slate-200 text-center font-bold">
+			<div className="grid grid-cols-4 grid-rows-4 grid-flow-row bg-slate-100 m-3 mb-5">
+				<div className="col-span-4 bg-slate-200 font-bold text-center">
 					{totes}
 				</div>
 				{renderInInfoBox}

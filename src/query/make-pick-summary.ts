@@ -23,14 +23,14 @@ const getRodeoPickDataReturn = [
     ]
 ]
 
-export default async function getRodeoPickData  (monkeyResponse)  {
+export default async function getRodeoPickData  (responseText: string)  {
 
 	
 		const CPTMap = new Map();
 
-		console.log("pickData response",monkeyResponse)
+		console.log("pickData response",responseText)
 
-		const alternateConvert = await csv().fromString(monkeyResponse);
+		const alternateConvert = await csv().fromString(responseText);
 
 		alternateConvert.forEach((row) => {
 			const unitExpectShipDate = row['ExSD'];
@@ -59,7 +59,7 @@ export default async function getRodeoPickData  (monkeyResponse)  {
 			}
 		});
 
-		const CPTArray = [...CPTMap].sort();
+		const CPTArray = [...CPTMap].sort() as typeof getRodeoPickDataReturn;
 		console.log({CPTArray})
 		//const timeBeforeNextCPT =(new Date(CPTArray[0][0]) - Date.now()) / 60 / 60 / 1000;
 		//console.log({timeBeforeNextCPT} )
@@ -68,5 +68,5 @@ export default async function getRodeoPickData  (monkeyResponse)  {
 		const isEmpty = CPTArray.length === 0 
 		const mutated = !isValid || isEmpty ? "error on mutation, data don't look as expected or feed is empty"  : CPTArray
 		console.log({mutated},isEmpty)
-        return mutated
+        return await mutated
 	}
