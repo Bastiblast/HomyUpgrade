@@ -63,7 +63,6 @@ function App() {
 								</button>
 							) : (
 								<button
-								onClick={() => console.log("click")}
 									className="mx-2 w-20 btn"
 								>
 									Refresh

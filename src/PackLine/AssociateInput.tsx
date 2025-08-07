@@ -3,25 +3,40 @@ import { uzeStore } from '../store/uzeStore';
 import { DataCenterContext } from '@/query/datacenter-contextAndProvider';
 
 export default function AssociateInput({ poste }) {
-	const headcount = uzeStore((s) => s.headcount);
+	
+		const {boardHeadcount} = useContext(DataCenterContext)
+
 	const updateHeadcount = uzeStore((s) => s.updateHeadcount);
 
-	
+		const {mappingState} = useContext(DataCenterContext)
+		const [mapping,setMapping] = mappingState
 
 	const {pdpQuery} = useContext(DataCenterContext)
-	if (!pdpQuery.response.datas) return
-	const PDPFiltereddata = pdpQuery.response.datas[0].data
 	
-	console.log({PDPFiltereddata})
+	let PDPFiltereddata
+	if (pdpQuery.response.datas) {
+		PDPFiltereddata = pdpQuery.response.datas[0].data
+	}
+	console.log({PDPFiltereddata},{mappingState},{mapping},{boardHeadcount})
+	
+
+	const headcountTotal = (newHC) => {
+		let totalHC = 0;
+		Object.values(newHC).forEach((line) => {
+			totalHC += line.size;
+		});
+		console.log("calcule new total",totalHC)
+		return totalHC
+	};
 
 	const handleHC = (event) => {
 		const poste = event.target.name;
 		const ligne = 'ligne' + event.target.name.substring(0, 1);
-		const newHC = { ...headcount };
+		const newHC = { ...mapping };
 		event.target.value
 			? newHC[ligne].set(poste, event.target.value)
 			: newHC[ligne].delete(poste);
-		//updateHeadcount(newHC);
+		setMapping(newHC);
 	};
 
 	const getValue = () => {
@@ -34,12 +49,12 @@ export default function AssociateInput({ poste }) {
 		const indexStart = newValue[3].indexOf('_0') + 2;
 		const laneNumber = posteName.substring(indexStart, indexStart + 1);
 		const posteNumber = posteName.substring(indexStart, indexStart + 3);
-		const newHC = { ...headcount };
+		const newHC = { ...mapping };
 		newHC[`ligne${laneNumber}`].set(
 			posteNumber,
 			`${newValue[0]} - ${newValue[5]}`,
 		);
-		//updateHeadcount(newHC);
+		//setMapping(newHC);
 		const firstLettreName = newValue[0].substring(0, 1);
 		const lastNameIndex = newValue[0].indexOf(',');
 		const lastName = newValue[0].substring(lastNameIndex);
@@ -48,7 +63,6 @@ export default function AssociateInput({ poste }) {
 			newValue[5].length > 0
 				? `/!\\${newName}-${newValue[5]}`
 				: `${newName}`;
-				console.log({returnedValue})
 		return returnedValue;
 	};
 

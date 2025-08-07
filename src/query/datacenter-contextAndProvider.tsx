@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useEffect, useState } from 'react'
+import React, { PropsWithChildren, useEffect, useMemo, useState } from 'react'
 import useMonkeyQuery from './useMonkeyQuery';
 import { staticPickDatas } from '../pickSumList';
 import { env } from '../../env';
@@ -10,6 +10,7 @@ import { staticRodeoDatas } from '@/shipmentItemList';
 import makePickDatas from './make-rodeo-picked';
 import type {GMQueryResponse} from './useMonkeyQuery'
 import getLastPlan from './make-lastPlan';
+import makeLastPlan from './make-lastPlan';
 const jsonPlaceHolder = 'https://jsonplaceholder.typicode.com/todos/1'
 
 const urlCSVPickSummary = `https://rodeo-dub.amazon.com/MRS1/CSV/ExSD?isEulerUpgraded=ALL&processPath=&fnSku=&fulfillmentServiceClass=ALL&exSDRange.quickRange=PLUS_MINUS_1_DAY
@@ -45,11 +46,31 @@ export default function DataProvider(props: PropsWithChildren) {
     const pickedQuery = useMonkeyQuery({name: 'picked',urls: [JSON.stringify(sourcePicked)],refresh: false,mutationFn:makePickDatas})
 	 
     const sourcePlan = env === 'developpement' ? planListTemplate : planURL
-    const planQuery = useMonkeyQuery({name: 'plan',urls: [JSON.stringify(sourcePlan)],refresh: false,mutationFn:getLastPlan})
+    const planQuery = useMonkeyQuery({name: 'plan',urls: [JSON.stringify(sourcePlan)],refresh: false,mutationFn:makeLastPlan})
 
+	const mappingState = useState({
+		ligne1: new Map(),
+		ligne2: new Map(),
+		ligne3: new Map(),
+		ligne4: new Map(),
+	})
+
+	const [mapping] = mappingState
+
+
+	const boardHeadcount = useMemo(() => {
+		let totalHC = 0;
+		Object.values(mapping).forEach((line) => {
+			totalHC += line.size;
+		});
+		console.log("calcule new total",totalHC)
+		return totalHC
+	},[mapping])
+
+	console.log({pdpQuery,boardHeadcount})
 
   return (
-    <DataCenterContext.Provider value={{pdpQuery,pickQuery,pickedQuery,planQuery}}>
+    <DataCenterContext.Provider value={{pdpQuery,pickQuery,pickedQuery,planQuery,boardHeadcount,mappingState}}>
       {children}
     </DataCenterContext.Provider>
   )

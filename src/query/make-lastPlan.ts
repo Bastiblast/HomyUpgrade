@@ -1,7 +1,7 @@
 import { GM } from "$";
 import { env } from "../../env";
 
-export default async function getLastStamp(list: string) {
+export default async function makeLastPlan(list: string) {
 
     if (env === 'developpement') return singlePlanTemplate
     
