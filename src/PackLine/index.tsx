@@ -1,36 +1,11 @@
-import { useContext } from 'react';
 import { uzeStore } from '../store/uzeStore';
 import RenderBuffer from './Buffer';
 import HeadCount from './HeadCount';
-import { DataCenterContext } from '@/query/datacenter-contextAndProvider';
 import Poste from './Poste';
 
 export default function PackLine() {
 
-	const {pickedQuery,mapping} = useContext(DataCenterContext)
-
-console.log({pickedQuery})
-
 	const posteMapping = uzeStore((s) => s.singleLaneMapping);
-
-	const capacityDetails = uzeStore((s) => s.capacityDetails);
-
-
-	const day = uzeStore((s) => s.day);
-	const infoBoxRef = uzeStore((s) => s.infoBoxRef);
-	const pageTime = uzeStore((s) => s.pageTime);
-	const headcount = uzeStore((s) => s.headcount);
-	const UPH = uzeStore((s) => s.UPH);
-	const TBCPT = uzeStore((s) => s.TBCPT);
-
-
-
-	const fullInfo = uzeStore((s) => s.fullInfo);
-
-	if (!pickedQuery.response?.datas) return
-	const [response] = pickedQuery.response.datas
-	const dataTotal = response.data
-
 	return (
 		<>
 			<div className="grid grid-cols-4">
@@ -43,7 +18,6 @@ console.log({pickedQuery})
 									{'Ligne ' + lineNumber}
 								</span>
 								<HeadCount
-									headcount={mapping}
 									ligne={'ligne' + lineNumber}
 								/>
 								{lineNumber === '3' ? (

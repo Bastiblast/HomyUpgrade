@@ -9,6 +9,7 @@ import { GM_getValue, GM_setValue } from '$'
 import { singlePlanTemplate, getLastPlanSingle } from './BonusButton/nail-the-plan/get-lastSinglePlan'
 import ActivityDetails from './activityDetails'
 import DataCenterContext from './query/datacenter-contextAndProvider'
+import { Button } from './components/ui/button'
 
 function App() {
   const refresher = uzeStore((s) => s.refresher)
@@ -36,27 +37,27 @@ function App() {
 
   return (
     <DataCenterContext>
-      <div className="bg-gradient-to-b from-white to-violet-500 p-4 h-full App">
-        <header className="flex justify-between p-2">
+      <div className="bg-gradient-to-b from-white to-violet-300 p-4 h-full App">
+        <header className="flex justify-between p-1 shrink grow">
           <div className="flex flex-col justify-between">
-            <h1 className="py-3 font-bold text-5xl">Pack Single Tracker</h1>
+            <h1 className="py-3 font-bold text-5xl">Homy</h1>
             <TotalHeadCount />
             <div className="flex flex-row">
               <MultiSelectorBtn />
 
-              {!refresher === 'loading' ? (
-                <button className="mx-2 w-20 text-white btn" disabled>
-                  <span className="loading-xl loading loading-spinner"></span>
-                </button>
-              ) : (
-                <button className="mx-2 w-20 btn">Refresh</button>
-              )}
             </div>
+              {!refresher === 'loading' ? (
+                <Button className="mx-2 w-20 text-white btn" disabled>
+                  <span className="loading-xl loading loading-spinner"></span>
+                </Button>
+              ) : (
+                <Button className="mx-2 w-20 btn">Refresh</Button>
+              )}
           </div>
           <div>
             <BonusButton />
           </div>
-          <div>
+          <div className='w-1/5'>
             <ActivityDetails />
           </div>
           <InfoBox />

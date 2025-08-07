@@ -10,6 +10,7 @@ import useMonkeyQuery from '../query/useMonkeyQuery'
 import FetchPickSummary, { DataCenterContext } from '../query/datacenter-contextAndProvider'
 import TablePick from './pick-remain/table-pick'
 import ShiftPaternSelector from './ShiftPaternSelector'
+import { Button } from '@/components/ui/button'
 
 export default function BonusButton({ data }) {
   const { pdpQuery, planQuery, pickQuery, pickedQuery } = useContext(DataCenterContext)
@@ -46,40 +47,40 @@ export default function BonusButton({ data }) {
   console.log({ planQuery })
   return (
     <div className="justify-evenly grid grid-cols-2 grid-rows-3 pt-3 h-full">
-      <button
+      <Button
         onClick={() => planQuery.get() && updateIBC(<GetThePlan />)}
-        className="bg-red-400 shadow-md m-1 rounded-none w-16 btn"
+        className="bg-slate-500/70 shadow-md m-1 rounded-none w-16"
         disabled={bonusDisabled}
       >
         PLAN
-      </button>
-      <button
+      </Button>
+      <Button
         onClick={() => pdpQuery.get()}
-        className="bg-red-400 shadow-md m-1 rounded-none w-16 btn"
+        className="bg-slate-500/70 shadow-md m-1 rounded-none w-16"
         disabled={bonusDisabled}
       >
         PDP
-      </button>
-      <button onClick={() => null} className="bg-red-400 shadow-md m-1 rounded-none w-16 btn" disabled={bonusDisabled}>
+      </Button>
+      <Button onClick={() => null} className="bg-slate-500/70 shadow-md m-1 rounded-none w-16" disabled={bonusDisabled}>
         PRIO
-      </button>
-      <button
+      </Button>
+      <Button
         onClick={() => pickQuery.get() && updateIBC(<TablePick />)}
-        className="bg-red-400 shadow-md m-1 rounded-none w-16 btn"
+        className="bg-slate-500/70 shadow-md m-1 rounded-none w-16"
         disabled={bonusDisabled}
       >
         PICK
-      </button>
-      <button onClick={() => null} className="bg-red-400 shadow-md m-1 rounded-none w-16 btn" disabled={bonusDisabled}>
+      </Button>
+      <Button onClick={() => null} className="bg-slate-500/70 shadow-md m-1 rounded-none w-16" disabled={bonusDisabled}>
         WASH
-      </button>
-      <button
+      </Button>
+      <Button
         onClick={() => pickedQuery.get()}
-        className="bg-red-400 shadow-md m-1 rounded-none w-16 btn"
+        className="bg-slate-500/70 shadow-md m-1 rounded-none w-16"
         disabled={bonusDisabled}
       >
         INFO
-      </button>
+      </Button>
     </div>
   )
 }

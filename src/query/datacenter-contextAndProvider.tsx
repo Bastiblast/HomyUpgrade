@@ -83,22 +83,23 @@ export default function DataProvider(props: PropsWithChildren) {
     }
   })
 
-  /*
-	const boardHeadcount = Object.values(mapping).reduce((acc,val) => val.size + acc,0)
-	console.log({pdpQuery,mapping,boardHeadcount})
-*/
+	const boardHeadcount = Object.values(mapping).map((line,index) => {return index = line.size})
 
+  const [CPTList,setCPTList] = useState(null)
+	console.log({pdpQuery,mapping,boardHeadcount})
+
+/*
   const [boardHeadcount, setBoardHeadcount] = useState(null)
 
   console.log({ pdpQuery, mapping, boardHeadcount })
 
   useEffect(() => {
-    setBoardHeadcount(Object.values(mapping).reduce((acc, val) => val.size + acc, 0))
+    setBoardHeadcount(Object.values(mapping).map((line,index) => {return index = line.size}))
   }, [mapping])
-
+*/
   return (
     <DataCenterContext.Provider
-      value={{ pdpQuery, pickQuery, pickedQuery, planQuery, boardHeadcount, mapping, setMapping }}
+      value={{ pdpQuery, pickQuery, pickedQuery, planQuery, boardHeadcount, mapping, setMapping,setCPTList,CPTList}}
     >
       {children}
     </DataCenterContext.Provider>

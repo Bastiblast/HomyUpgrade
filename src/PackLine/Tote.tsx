@@ -2,7 +2,6 @@ import { uzeStore } from '../store/uzeStore'
 
 export default function RenderRack({ dropzone, inductPrio, data }) {
   const updateIBC = uzeStore((s) => s.updateIBC)
-  const dataTotal = uzeStore((s) => s.dataTotal)
   const CPTlist = uzeStore((s) => s.CPTlist)
 
   const { prioCPT, potentiel } = inductPrio
@@ -17,14 +16,11 @@ export default function RenderRack({ dropzone, inductPrio, data }) {
 
   if (!data?.[dropzone]) return
 
-  console.log({data})
 
   return <>
   {
 	Object.keys(data[dropzone]).map((totes) => {
-		console.log({totes})
     if (totes === 'total' || totes === 'NextCPT') return
-    console.log("data",dropzone,totes,data[dropzone][totes],data)
 
     let newTotalQuantity
     newTotalQuantity =
@@ -68,11 +64,10 @@ export default function RenderRack({ dropzone, inductPrio, data }) {
         nextCPT = data[dropzone]['NextCPT'] < nextCPT ? data[dropzone]['NextCPT'] : nextCPT
       }
       nextCPT === '0' ? null : (data[dropzone]['NextCPT'] = nextCPT)
-       console.log("nextCPT",nextCPT,typeof nextCPT)
     }
 
     // console.log(data)
-    let activeTote
+    let activeTote: string
 
     if (CPTlist.length > 0) {
       CPTlist.forEach((selector) => {
@@ -89,7 +84,6 @@ export default function RenderRack({ dropzone, inductPrio, data }) {
       isInductPrio === true ? (activeTote = 'bg-red-500') : (activeTote = 'bg-blue-500')
     }
 
-	console.log("almost render")
     return (
       <div
         onClick={() => handleToteLook(totes, data[dropzone][totes], updateIBC)}

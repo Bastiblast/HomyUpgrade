@@ -5,18 +5,17 @@ import AssociateInput from './AssociateInput'
 import RenderRack from './Tote'
 import searchOnRodeo from './onRodeoSearch'
 
-export default function Poste(props) {
+export default function Poste({ poste }) {
+
   const UPH = uzeStore((s) => s.UPH)
   const TBCPT = uzeStore((s) => s.TBCPT)
 
   const ico = useRef(null)
 
-  const { poste } = props
   const { pickedQuery } = useContext(DataCenterContext)
-  if (!pickedQuery.response.datas) return
+  if (!pickedQuery.response?.datas) return
   const dataTotal = pickedQuery.response.datas[0].data
 
-  console.log({dataTotal})
 
   let renderUnits,
     nextCPT,
@@ -31,7 +30,7 @@ export default function Poste(props) {
 
     const wsCPT = dataTotal[`ws_Singles_0${poste}`]?.NextCPT
     const stationCPT = dataTotal[`dz-P-OB-Single-cvg-${poste}`]?.NextCPT
-    const nextCPT = wsCPT < stationCPT ? wsCPT : stationCPT
+    nextCPT = wsCPT < stationCPT ? wsCPT : stationCPT
     const remaingTime = (Date.parse(nextCPT) - Date.now()) / 1000 / 60 / 60
 
     const timeToFinish = renderUnits / UPH
