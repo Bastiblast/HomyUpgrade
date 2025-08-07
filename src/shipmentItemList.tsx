@@ -1097,4 +1097,4 @@ export const staticRodeoDatas = `"Shipment ID","FN SKU","Title","Expected Ship D
 "105470672222202","B09VH6292V","Wirquin 30723382 Membrane Slim+ avec filtre à cheveux amovible pour évacuation bonde de douche, rouge et gris","2025-07-21 20:00:00","tsX0yp50q13","dz-P-OB-Single-Line1","4","AMZN_FR_STD","premium-next-fr","PPSingleMedium","Same/Next","LH-MRS9","1566909324523",,"1","PickingPickedAtDestination","0.00"
 "105489015910202","2017889911","Écosse Guide Simplissime","2025-07-21 20:30:00","tsX137gnvgz","dz-P-OB-Single-Line1","4","LP_COLISSIMO_HUB2","premium-next-fr","PPSingleMedium","Same/Next","CC-LP-ALPES-H2","1567074591303",,"1","PickingPickedAtDestination","0.00"
 "105505386469202","X0025TCKQT","Tablet Android 14, 10 Pouces, 22Go RAM 128Go ROM/TF 1TB Extensible, HD Écran IPS, WiFi 5G, Octa-Core, 8000mAh, BT5.0, 8MP+5MP, Corps métallique, Tablette Tactile avec Clavier, Souris-Noir","2025-07-21 20:00:00","tsX137gnvgz","dz-P-OB-Single-Line1","4","AMZN_FR_STD","premium-next-fr","PPSingleMedium","Same/Next","LH-MRS9","1567188040243",,"1","PickingPickedAtDestination","0.00"
-`;
+`

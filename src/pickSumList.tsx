@@ -149,4 +149,4 @@ export const staticPickDatas = `"Process Path","Work Pool","ExSD","Quantity"
 "PPSingleMedium","Scanned","2025-07-21 20:00","35"
 "PPMultiMerge","ManifestPending","2025-07-21 23:30","34"
 "PPMultiMerge","PickingNotYetPickedNotPrioritized","2025-07-21 20:30","47"
-"PPMultiMerge","PickingNotYetPickedPrioritized","2025-07-21 23:30","48"`;
+"PPMultiMerge","PickingNotYetPickedPrioritized","2025-07-21 23:30","48"`

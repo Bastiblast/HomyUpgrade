@@ -1,159 +1,137 @@
-import { uzeStore } from '../store/uzeStore';
+import { uzeStore } from '../store/uzeStore'
 
-export default function RenderPoste({ dropzone, inductPrio, data }) {
-	const updateDataTotal = uzeStore((s) => s.updateDataTotal);
-	const updateIBC = uzeStore((s) => s.updateIBC);
-	const dataTotal = uzeStore((s) => s.dataTotal);
-	const CPTlist = uzeStore((s) => s.CPTlist);
+export default function RenderRack({ dropzone, inductPrio, data }) {
+  const updateIBC = uzeStore((s) => s.updateIBC)
+  const dataTotal = uzeStore((s) => s.dataTotal)
+  const CPTlist = uzeStore((s) => s.CPTlist)
 
-	const { prioCPT, potentiel } = inductPrio;
+  const { prioCPT, potentiel } = inductPrio
 
-	if (!data) return;
+  if (!data) return
 
-	const someData = data[dropzone] ?? false;
+  const someData = data[dropzone] ?? false
 
-	if (!someData) return;
+  if (!someData) return
 
-	const render = Object.keys(data[dropzone]).map((totes) => {
-		if (totes === 'total' || totes === 'NextCPT') return;
-		//console.log("data",dropzone,totes,data[dropzone][totes],data)
+  
 
-		let newTotalQuantity;
-		newTotalQuantity =
-			data[dropzone][totes] &&
-			Object.entries(data[dropzone][totes]).reduce((acc, val) => {
-				if (val[0] === 'total' || val[0] === 'NextCPT') return;
-				if (!Array.isArray(val[1])) return acc;
-				const total = val[1].reduce((acc, val) => {
-					return parseInt(val.Quantity) + acc;
-				}, 0);
-				return total + acc;
-			}, 0);
+  if (!data?.[dropzone]) return
 
-		newTotalQuantity = newTotalQuantity ? newTotalQuantity : 0;
+  console.log({data})
 
-		data[dropzone]['total'] = data[dropzone]['total']
-			? data[dropzone]['total'] + newTotalQuantity
-			: newTotalQuantity;
-		newTotalQuantity
-			? (data[dropzone][totes].total = newTotalQuantity)
-			: null;
+  return <>
+  {
+	Object.keys(data[dropzone]).map((totes) => {
+		console.log({totes})
+    if (totes === 'total' || totes === 'NextCPT') return
+    console.log("data",dropzone,totes,data[dropzone][totes],data)
 
-		let nextCPT;
+    let newTotalQuantity
+    newTotalQuantity =
+      data[dropzone][totes] &&
+      Object.entries(data[dropzone][totes]).reduce((acc, val) => {
+        if (val[0] === 'total' || val[0] === 'NextCPT') return
+        if (!Array.isArray(val[1])) return acc
+        const total = val[1].reduce((acc, val) => {
+          return parseInt(val.Quantity) + acc
+        }, 0)
+        return total + acc
+      }, 0)
 
-		if (data[dropzone][totes]) {
-			nextCPT =
-				data[dropzone][totes] &&
-				Object.keys(data[dropzone][totes]).reduce((acc, val) => {
-					if (acc === 0) return val;
-					if (val[0] === 'total' || val[0] === 'NextCPT') return acc;
-					const isValNextCPT = acc > val;
+    newTotalQuantity = newTotalQuantity ? newTotalQuantity : 0
 
-					const returnValue = isValNextCPT ? val : acc;
-					// //.log("reducer",acc,val,isValNextCPT,returnValue)
+    data[dropzone]['total'] = data[dropzone]['total'] ? data[dropzone]['total'] + newTotalQuantity : newTotalQuantity
+    newTotalQuantity ? (data[dropzone][totes].total = newTotalQuantity) : null
 
-					return returnValue;
-				}, 0);
+    let nextCPT
 
-			if (data[dropzone][totes]['NextCPT']) {
-				nextCPT =
-					data[dropzone][totes]['NextCPT'] < nextCPT
-						? data[dropzone][totes]['NextCPT']
-						: nextCPT;
-			}
-			nextCPT === '0'
-				? null
-				: (data[dropzone][totes]['NextCPT'] = nextCPT);
+    if (data[dropzone][totes]) {
+      nextCPT =
+        data[dropzone][totes] &&
+        Object.keys(data[dropzone][totes]).reduce((acc, val) => {
+          if (acc === 0) return val
+          if (val[0] === 'total' || val[0] === 'NextCPT') return acc
+          const isValNextCPT = acc > val
 
-			if (data[dropzone]['NextCPT']) {
-				nextCPT =
-					data[dropzone]['NextCPT'] < nextCPT
-						? data[dropzone]['NextCPT']
-						: nextCPT;
-			}
-			nextCPT === '0' ? null : (data[dropzone]['NextCPT'] = nextCPT);
-			// console.log("nextCPT",nextCPT,typeof nextCPT)
-		}
+          const returnValue = isValNextCPT ? val : acc
+          // //.log("reducer",acc,val,isValNextCPT,returnValue)
 
-		// console.log(data)
-		updateDataTotal(data);
-		let activeTote;
+          return returnValue
+        }, 0)
 
-		if (CPTlist.length > 0) {
-			CPTlist.forEach((selector) => {
-				if (activeTote === 'bg-red-500' || !dataTotal) return;
-				const isInductPrio =
-					dataTotal[dropzone][totes].NextCPT === selector &&
-					potentiel < 0;
-				//console.log("isInductPrio",selector," = ",prioCPT,isInductPrio)
-				JSON.stringify(data[dropzone][totes]).includes(selector) ||
-				isInductPrio === true
-					? (activeTote = 'bg-red-500')
-					: (activeTote = 'bg-blue-500');
-			});
-		} else {
-			if (activeTote === 'bg-red-500' || !dataTotal) return;
-			const isInductPrio =
-				dataTotal[dropzone][totes].NextCPT === nextCPT && potentiel < 0;
-			isInductPrio === true
-				? (activeTote = 'bg-red-500')
-				: (activeTote = 'bg-blue-500');
-		}
+      if (data[dropzone][totes]['NextCPT']) {
+        nextCPT = data[dropzone][totes]['NextCPT'] < nextCPT ? data[dropzone][totes]['NextCPT'] : nextCPT
+      }
+      nextCPT === '0' ? null : (data[dropzone][totes]['NextCPT'] = nextCPT)
 
-		return (
-			<div
-				onClick={() =>
-					handleToteLook(totes, data[dropzone][totes], updateIBC)
-				}
-				className={
-					activeTote +
-					' m-1 rounded p-1 transition-all hover:scale-[2] hover:font-bold'
-				}
-				key={totes}
-			>
-				{totes.substring(8, 11)}
-			</div>
-		);
-	});
+      if (data[dropzone]['NextCPT']) {
+        nextCPT = data[dropzone]['NextCPT'] < nextCPT ? data[dropzone]['NextCPT'] : nextCPT
+      }
+      nextCPT === '0' ? null : (data[dropzone]['NextCPT'] = nextCPT)
+       console.log("nextCPT",nextCPT,typeof nextCPT)
+    }
 
-	if (!data?.[dropzone]) return;
+    // console.log(data)
+    let activeTote
 
-	// //console.log({data})
+    if (CPTlist.length > 0) {
+      CPTlist.forEach((selector) => {
+        if (activeTote === 'bg-red-500' || !data) return
+        const isInductPrio = data[dropzone][totes].NextCPT === selector && potentiel < 0
+        //console.log("isInductPrio",selector," = ",prioCPT,isInductPrio)
+        JSON.stringify(data[dropzone][totes]).includes(selector) || isInductPrio === true
+          ? (activeTote = 'bg-red-500')
+          : (activeTote = 'bg-blue-500')
+      })
+    } else {
+      if (activeTote === 'bg-red-500' || !data) return
+      const isInductPrio = data[dropzone][totes].NextCPT === nextCPT && potentiel < 0
+      isInductPrio === true ? (activeTote = 'bg-red-500') : (activeTote = 'bg-blue-500')
+    }
 
-	return <>{render}</>;
+	console.log("almost render")
+    return (
+      <div
+        onClick={() => handleToteLook(totes, data[dropzone][totes], updateIBC)}
+        className={activeTote + ' m-1 rounded p-1 transition-all hover:scale-[2] hover:font-bold'}
+        key={totes}
+      >
+        {totes.substring(8, 11)}
+      </div>
+    )
+  }
+)}</>
 }
 
 const handleToteLook = (totes, event, updateIBC) => {
-	if (!event) return;
-	//console.log("handleToteLook",totes,{event})
-	const renderInInfoBox =
-		event &&
-		Object.entries(event).map((entries) => {
-			const [cpt, quantity] = entries;
-			//console.log("handleToteLook entrie",cpt,quantity)
-			return (
-				<div key={cpt + quantity}>
-					<span className="px-1">{cpt.substring(5)}</span>
-					<span className="px-1">
-						{String(
-							Object.values(quantity).reduce((acc, val) => {
-								return acc + Number(val['Quantity']);
-							}, 0),
-						)}
-					</span>
-				</div>
-			);
-		});
-	//console.log("handleToteLook",renderInInfoBox)
+  if (!event) return
+  //console.log("handleToteLook",totes,{event})
+  const renderInInfoBox =
+    event &&
+    Object.entries(event).map((entries) => {
+      const [cpt, quantity] = entries
+      //console.log("handleToteLook entrie",cpt,quantity)
+      return (
+        <div key={cpt + quantity}>
+          <span className="px-1">{cpt.substring(5)}</span>
+          <span className="px-1">
+            {String(
+              Object.values(quantity).reduce((acc, val) => {
+                return acc + Number(val['Quantity'])
+              }, 0),
+            )}
+          </span>
+        </div>
+      )
+    })
+  //console.log("handleToteLook",renderInInfoBox)
 
-	updateIBC(
-		<>
-			<div className="grid grid-cols-4 grid-rows-4 grid-flow-row bg-slate-100 m-3 mb-5">
-				<div className="col-span-4 bg-slate-200 font-bold text-center">
-					{totes}
-				</div>
-				{renderInInfoBox}
-			</div>
-		</>,
-	);
-};
+  updateIBC(
+    <>
+      <div className="grid grid-cols-4 grid-rows-4 grid-flow-row bg-slate-100 m-3 mb-5">
+        <div className="col-span-4 bg-slate-200 font-bold text-center">{totes}</div>
+        {renderInInfoBox}
+      </div>
+    </>,
+  )
+}

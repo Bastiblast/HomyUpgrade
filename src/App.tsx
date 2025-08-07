@@ -1,89 +1,71 @@
-import PackLine from './PackLine/index';
-import MultiSelectorBtn from './Header/MultiSelectorBtn';
-import { uzeStore } from './store/uzeStore';
-import InfoBox from './PackLine/InfoBox';
-import TotalHeadCount from './PackLine/TotalHeadCount';
-import BonusButton from './BonusButton/index';
-import React, { useContext, useEffect, useState } from 'react';
-import { GM_getValue, GM_setValue } from '$';
-import {
-	singlePlanTemplate,
-	getLastPlanSingle,
-} from './BonusButton/nail-the-plan/get-lastSinglePlan';
-import ActivityDetails from './activityDetails';
-import DataCenterContext from './query/datacenter-contextAndProvider';
-
-
+import PackLine from './PackLine/index'
+import MultiSelectorBtn from './Header/MultiSelectorBtn'
+import { uzeStore } from './store/uzeStore'
+import InfoBox from './PackLine/InfoBox'
+import TotalHeadCount from './PackLine/TotalHeadCount'
+import BonusButton from './BonusButton/index'
+import React, { useContext, useEffect, useState } from 'react'
+import { GM_getValue, GM_setValue } from '$'
+import { singlePlanTemplate, getLastPlanSingle } from './BonusButton/nail-the-plan/get-lastSinglePlan'
+import ActivityDetails from './activityDetails'
+import DataCenterContext from './query/datacenter-contextAndProvider'
 
 function App() {
+  const refresher = uzeStore((s) => s.refresher)
+  const updateCapacityDetails = uzeStore((s) => s.updateCapacityDetails)
+  const updatePickRefresher = uzeStore((s) => s.updatePickRefresher)
 
-	const refresher = uzeStore((s) => s.refresher);
-	const updateCapacityDetails = uzeStore((s) => s.updateCapacityDetails);
-	const updatePickRefresher = uzeStore((s) => s.updatePickRefresher);
+  const pageTime = uzeStore((s) => s.pageTime)
 
-	const pageTime = uzeStore((s) => s.pageTime);
+  useEffect(() => {
+    //console.log({pageTime})
+    if (pageTime) return
+    const storedValue = GM_getValue('Homy_capacityDetails')
+    const initValue = storedValue
+      ? JSON.parse(storedValue)
+      : {
+          dataTime: 0,
+          userPreference: {
+            UPH: 145,
+            TBCPT: 45,
+          },
+        }
+    updateCapacityDetails(initValue)
+    updatePickRefresher('loading')
+  })
 
+  return (
+    <DataCenterContext>
+      <div className="bg-gradient-to-b from-white to-violet-500 p-4 h-full App">
+        <header className="flex justify-between p-2">
+          <div className="flex flex-col justify-between">
+            <h1 className="py-3 font-bold text-5xl">Pack Single Tracker</h1>
+            <TotalHeadCount />
+            <div className="flex flex-row">
+              <MultiSelectorBtn />
 
-	useEffect(() => {
-		//console.log({pageTime})
-		if (pageTime) return;
-		const storedValue = GM_getValue('Homy_capacityDetails');
-		const initValue = storedValue
-			? JSON.parse(storedValue)
-			: {
-					dataTime: 0,
-					userPreference: {
-						UPH: 145,
-						TBCPT: 45,
-					},
-				};
-		updateCapacityDetails(initValue);
-		updatePickRefresher('loading');
-	});
+              {!refresher === 'loading' ? (
+                <button className="mx-2 w-20 text-white btn" disabled>
+                  <span className="loading-xl loading loading-spinner"></span>
+                </button>
+              ) : (
+                <button className="mx-2 w-20 btn">Refresh</button>
+              )}
+            </div>
+          </div>
+          <div>
+            <BonusButton />
+          </div>
+          <div>
+            <ActivityDetails />
+          </div>
+          <InfoBox />
+        </header>
 
-
-	return (
-		<DataCenterContext>
-			<div className="bg-gradient-to-b from-white to-violet-500 p-4 h-full App">
-				<header className="flex justify-between p-2">
-					<div className="flex flex-col justify-between">
-						<h1 className="py-3 font-bold text-5xl">
-							Pack Single Tracker
-						</h1>
-						<TotalHeadCount />
-						<div className="flex flex-row">
-							<MultiSelectorBtn />
-
-							{!refresher === 'loading' ? (
-								<button
-									className="mx-2 w-20 text-white btn"
-									disabled
-								>
-									<span className="loading-xl loading loading-spinner"></span>
-								</button>
-							) : (
-								<button
-									className="mx-2 w-20 btn"
-								>
-									Refresh
-								</button>
-							)}
-						</div>
-					</div>
-					<div>
-
-					<BonusButton/>
-					</div>
-					<div>
-						<ActivityDetails />
-					</div>
-					<InfoBox />
-				</header>
-
-				<PackLine />
-			</div>
-		</DataCenterContext>
-	);
+        <PackLine />
+      </div>
+    </DataCenterContext>
+  )
 }
 
-export default App;
+export default App

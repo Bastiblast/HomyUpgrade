@@ -1072,6 +1072,6 @@ const csvRodeo = `"Shipment ID","FN SKU","Title","Expected Ship Date","Scannable
 "95878766443202","B017IUJA50","BEPER 90.920G Réchauffeur d'Aliments Electrique Portable, 2 Récipients Amovibles, Couverts Inclus, 220V, Jaune","2024-11-22 11:45:00","tsX085x6h5f","dz-P-OB-Single-Line2","4","AMZN_IT_PRIME","next-it","PPSingleMedium","Fast Track","LH-LIN8","1492545766923",,"1","PickingPickedAtDestination","0.53"
 "95878711425202","B09SBL2MJ5","Finish Quantum Infinity Shine Pastilles Lave-Vaisselle, Elimine Les Taches Tenaces, 166 Capsules","2024-11-22 20:00:00","tsX14aenj3j","dz-P-OB-Single-Line2","4","AMZN_FR_PRIME","premium-next-fr","PPSingleMedium","Same/Next","AMZL-DWP2-ND","1492505273983",,"1","PickingPickedAtDestination","0.57"
 "95885130599202","X001WBNHA9","Casio Montre W-218H-4B2VEF","2024-11-22 11:45:00","tsX15t8529t","dz-P-OB-Single-Line2","4","AMZN_ES_PRIME","next-es","PPSingleMedium","Same/Next","LH-BCN8","1492583846743",,"1","PickingPickedAtDestination","0.57"
-`;
+`
 
-export default csvRodeo;
+export default csvRodeo
