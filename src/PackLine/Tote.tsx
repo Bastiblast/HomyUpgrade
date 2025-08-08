@@ -1,8 +1,11 @@
+import { useContext } from 'react'
 import { uzeStore } from '../store/uzeStore'
+import { DataCenterContext } from '@/query/datacenter-contextAndProvider'
 
 export default function RenderRack({ dropzone, inductPrio, data }) {
   const updateIBC = uzeStore((s) => s.updateIBC)
-  const CPTlist = uzeStore((s) => s.CPTlist)
+
+  const {CPTList} = useContext(DataCenterContext)
 
   const { prioCPT, potentiel } = inductPrio
 
@@ -16,6 +19,7 @@ export default function RenderRack({ dropzone, inductPrio, data }) {
 
   if (!data?.[dropzone]) return
 
+  console.log('tote',{ dropzone, inductPrio, data })
 
   return <>
   {
@@ -69,8 +73,8 @@ export default function RenderRack({ dropzone, inductPrio, data }) {
     // console.log(data)
     let activeTote: string
 
-    if (CPTlist.length > 0) {
-      CPTlist.forEach((selector) => {
+    if (CPTList && CPTList.length > 0) {
+      CPTList.forEach((selector) => {
         if (activeTote === 'bg-red-500' || !data) return
         const isInductPrio = data[dropzone][totes].NextCPT === selector && potentiel < 0
         //console.log("isInductPrio",selector," = ",prioCPT,isInductPrio)

@@ -8,7 +8,7 @@ import searchOnRodeo from './onRodeoSearch'
 export default function Poste({ poste }) {
 
   const UPH = uzeStore((s) => s.UPH)
-  const TBCPT = uzeStore((s) => s.TBCPT)
+  const {timeRemain,safeTime} = useContext(DataCenterContext)
 
   const ico = useRef(null)
 
@@ -16,6 +16,7 @@ export default function Poste({ poste }) {
   if (!pickedQuery.response?.datas) return
   const dataTotal = pickedQuery.response.datas[0].data
 
+  console.log({safeTime})
 
   let renderUnits,
     nextCPT,
@@ -31,10 +32,11 @@ export default function Poste({ poste }) {
     const wsCPT = dataTotal[`ws_Singles_0${poste}`]?.NextCPT
     const stationCPT = dataTotal[`dz-P-OB-Single-cvg-${poste}`]?.NextCPT
     nextCPT = wsCPT < stationCPT ? wsCPT : stationCPT
-    const remaingTime = (Date.parse(nextCPT) - Date.now()) / 1000 / 60 / 60
 
     const timeToFinish = renderUnits / UPH
-    const potentiel = remaingTime - (timeToFinish + TBCPT / 60)
+    potentiel = (timeRemain() / 1000 / 60) - (timeToFinish + safeTime / 60)
+    //console.log('nextCPT',{poste,wsCPT,stationCPT},dataTotal[`dz-P-OB-Single-cvg-${poste}`])
+    //nextCPT && console.log('potentiel',timeRemain(),(timeRemain() / 1000 / 60 / 60),{poste,dataTotal,nextCPT,timeToFinish,safeTime,potentiel})
     stationColor =
       potentiel > 0 || isNaN(potentiel)
         ? 'flex flex-row shrink items-center bg-violet-400 p-1 m-1 justify-between rounded-md'

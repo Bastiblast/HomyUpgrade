@@ -11,6 +11,7 @@ import makePickDatas from './make-rodeo-picked'
 import type { GMQueryResponse } from './useMonkeyQuery'
 import getLastPlan from './make-lastPlan'
 import makeLastPlan from './make-lastPlan'
+import { time } from 'console'
 const jsonPlaceHolder = 'https://jsonplaceholder.typicode.com/todos/1'
 
 const urlCSVPickSummary = `https://rodeo-dub.amazon.com/MRS1/CSV/ExSD?isEulerUpgraded=ALL&processPath=&fnSku=&fulfillmentServiceClass=ALL&exSDRange.quickRange=PLUS_MINUS_1_DAY
@@ -85,7 +86,29 @@ export default function DataProvider(props: PropsWithChildren) {
 
 	const boardHeadcount = Object.values(mapping).map((line,index) => {return index = line.size})
 
-  const [CPTList,setCPTList] = useState(null)
+  const [CPTList,setCPTList] = useState<string[] | null>(null)
+
+  const ITC = env === 'developpement' ? 1753109891000 : Date.now()
+
+  const timeRemain = () => {
+    const time = ITC
+    if (!pickQuery.response?.datas) return
+    if (CPTList) {
+      const nextCPT = CPTList.sort()[0]
+      const timeRemain = Date.parse(nextCPT) - time
+      return timeRemain
+    } else {
+      const nextCPT = pickQuery.response?.datas[0].data.sort()[0][0]
+      const timeRemain = Date.parse(nextCPT) - time
+      return timeRemain
+    }
+
+  }
+
+  const [safeTime,setSafeTime] = useState(15)
+  
+  console.log('data center timeRemain',timeRemain(),{CPTList})
+
 	console.log({pdpQuery,mapping,boardHeadcount})
 
 /*
@@ -99,7 +122,7 @@ export default function DataProvider(props: PropsWithChildren) {
 */
   return (
     <DataCenterContext.Provider
-      value={{ pdpQuery, pickQuery, pickedQuery, planQuery, boardHeadcount, mapping, setMapping,setCPTList,CPTList}}
+      value={{ pdpQuery, pickQuery, pickedQuery, planQuery, boardHeadcount, mapping, setMapping,setCPTList,CPTList,timeRemain,safeTime,setSafeTime}}
     >
       {children}
     </DataCenterContext.Provider>

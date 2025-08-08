@@ -4,9 +4,14 @@ import { GM } from '$';
 import { DataCenterContext } from './query/datacenter-contextAndProvider';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card';
 import { Input } from './components/ui/input';
+import { useDebounce } from "use-debounce";
+
 
 export default function ActivityDetails() {
-	const {boardHeadcount} = useContext(DataCenterContext)
+	const {boardHeadcount,setSafeTime} = useContext(DataCenterContext)
+	
+	
+	const [safeTimeInput,setSafeTimeInput] = useState(() => 15)
 	const totalHeadCount = boardHeadcount ? boardHeadcount.reduce((acc,val) => acc + val,0) : 0
 	const updateTotalHeadCount = uzeStore((s) => s.updateTotalHeadCount);
 	const updateCapacityDetails = uzeStore((s) => s.updateCapacityDetails);
@@ -20,16 +25,17 @@ export default function ActivityDetails() {
 	const timeBeforeFinishRef = useRef<HTMLInputElement>(null);
 	const headcountRef = useRef<HTMLInputElement>(null);
 
-	const [customHC, setCustomHC] = useState<null | number>(totalHeadCount);
-	const [timeBeforeFinish, setTimeBeforeFinish] = useState<null | number>(
-		null,
-	);
-
 	const environnement = uzeStore((s) => s.environnement);
 	const pageTime = uzeStore((s) => s.pageTime);
 
 	const form = useRef(null)
 	const formdata = new FormData()
+
+	useEffect(() => {
+		const timeOut = setTimeout(() => setSafeTime(Number(safeTimeInput)),1000)
+		return () => clearTimeout(timeOut)
+	},[safeTimeInput])
+
 	useEffect(() => {
 		//console.log("Trying cache user preference....")
 		GM.getValue('Homy_capacityDetails').then((GMValue) => {
@@ -68,14 +74,12 @@ export default function ActivityDetails() {
 		updateCapacityDetails(newDetails);
 	}, [UPH, TBCPT]);
 
-	useEffect(() => {
-		setCustomHC(totalHeadCount);
-	}, [totalHeadCount]);
 
 	const emptyInputColor = {
 		0: 'bg-red-300',
 	};
 
+	
 	return (
 		<Card>
 		<form
@@ -123,10 +127,10 @@ export default function ActivityDetails() {
 				Temps avant CPT
 			</label>
 			<Input
-				value={TBCPT}
+				value={safeTimeInput}
 				ref={timeBeforeFinishRef}
 				name='secureTime'
-				onChange={(e) => updateTBCPT(Number(e.target.value))}
+				onChange={(e) => setSafeTimeInput(e.target.value)}
 				type="number"
 				className={
 					`my-1 border-blue-400 ` +

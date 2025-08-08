@@ -23,7 +23,7 @@ export interface GMQueryResponse {
   loading: boolean
   progress?: progress | null
   lifeTime?: number | null
-  datas?: null | string
+  datas?: null | unknown[]
 }
 ;[]
 
