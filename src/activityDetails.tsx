@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState,useMemo } from 'react';
 import { uzeStore } from './store/uzeStore';
 import { GM } from '$';
 import { DataCenterContext } from './query/datacenter-contextAndProvider';
@@ -9,11 +9,31 @@ import { useDebounce } from "use-debounce";
 
 export default function ActivityDetails() {
 	const {boardHeadcount,setSafeTime} = useContext(DataCenterContext)
-	
-	
+	const boardTotalHeadCount = boardHeadcount.reduce((acc:number,val:number) => acc + val,0)
+	console.log({boardHeadcount})
 	const [safeTimeInput,setSafeTimeInput] = useState(() => 15)
-	const totalHeadCount = boardHeadcount ? boardHeadcount.reduce((acc,val) => acc + val,0) : 0
-	const updateTotalHeadCount = uzeStore((s) => s.updateTotalHeadCount);
+	const [panelHeadCount,setPanelHeadCount] = useState(() => 0)
+
+	const boardRef = useRef(boardTotalHeadCount)
+	const panelRef = useRef(panelHeadCount)
+
+	const totalHeadCount = useMemo(() => {
+	console.log('1',{boardRef:boardRef.current,boardTotalHeadCount,panelRef:panelRef.current,panelHeadCount})
+		const prevBoard = boardRef.current
+		const prevPanel = panelRef.current
+		boardRef.current = boardTotalHeadCount
+		panelRef.current = panelHeadCount
+		console.log('2',{prevBoard,boardTotalHeadCount,prevPanel,panelHeadCount})
+		let freshData
+		if (panelHeadCount === 0) freshData = boardTotalHeadCount
+		if (boardTotalHeadCount === 0) freshData = panelHeadCount
+		freshData = panelHeadCount 
+
+	return freshData
+	}
+	,[boardHeadcount, panelHeadCount])
+	
+
 	const updateCapacityDetails = uzeStore((s) => s.updateCapacityDetails);
 
 	const UPH = uzeStore((s) => s.UPH);
@@ -35,6 +55,7 @@ export default function ActivityDetails() {
 		const timeOut = setTimeout(() => setSafeTime(Number(safeTimeInput)),1000)
 		return () => clearTimeout(timeOut)
 	},[safeTimeInput])
+
 
 	useEffect(() => {
 		//console.log("Trying cache user preference....")
@@ -82,8 +103,6 @@ export default function ActivityDetails() {
 	
 	return (
 		<Card>
-		<form
-		ref={form}>
 			<CardHeader>
 				<CardTitle>
 
@@ -99,10 +118,11 @@ export default function ActivityDetails() {
 				headcount
 			</span>
 			<Input
-				value={String(totalHeadCount)}
+				defaultValue={boardHeadcount}
+				value={totalHeadCount}
 				ref={headcountRef}
 				name='headcount'
-				onChange={(e) => updateTotalHeadCount(Number(e.target.value))}
+				onChange={(e) => setPanelHeadCount(Number(e.target.value))}
 				type="number"
 				className={
 					`my-1 border-blue-400 ` +
@@ -138,7 +158,6 @@ export default function ActivityDetails() {
 				}
 			/>
 			</CardContent>
-		</form>
 		</Card>
 	);
 }
