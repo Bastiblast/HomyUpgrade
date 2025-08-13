@@ -35,7 +35,7 @@ const initializeMonkeyResponse = {
   lifeTime: null,
 } as GMQueryResponse
 
-export default function useMonkeyQuery({ name, urls, latence = 0, refresh = false, mutationFn }: MonkeyQueryProps): GMQueryResponse | undefined | null {
+export default function useMonkeyQuery({ name, urls, latence = 0, refresh = false, mutationFn }: MonkeyQueryProps) {
   const [response, setResponse] = useState<GMQueryResponse | null>(null)
   const [loading, setLoading] = useState<GMQueryResponse['loading']>(false)
   const [status, setStatus] = useState<GMQueryResponse['status']>(null)
