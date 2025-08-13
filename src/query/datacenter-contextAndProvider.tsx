@@ -34,14 +34,20 @@ type DataCenterContext = {
   pickQuery: GMQueryResponse, 
   pickedQuery: GMQueryResponse,
   planQuery: GMQueryResponse, 
-  boardHeadcount: number, 
+  boardHeadcount: number[], 
   mapping: [string,string][], 
   setMapping: React.Dispatch<React.SetStateAction<{
     ligne1: Map<string, string>;
     ligne2: Map<string, string>;
     ligne3: Map<string, string>;
     ligne4: Map<string, string>;
-}>> } | null
+}>>,
+  setCPTList: React.Dispatch<React.SetStateAction<string[] | null>>,
+  CPTList: string[] | null,
+  timeRemain: () => number | undefined,
+  safeTime: number,
+  setSafeTime: React.Dispatch<React.SetStateAction<number>>
+} | null
 
 export const DataCenterContext = createContext<DataCenterContext>(null)
 
@@ -122,7 +128,7 @@ export default function DataProvider(props: PropsWithChildren) {
 */
   return (
     <DataCenterContext.Provider
-      value={{ pdpQuery, pickQuery, pickedQuery, planQuery, boardHeadcount, mapping, setMapping,setCPTList,CPTList,timeRemain,safeTime,setSafeTime}}
+      value={{ITC, pdpQuery, pickQuery, pickedQuery, planQuery, boardHeadcount, mapping, setMapping,setCPTList,CPTList,timeRemain,safeTime,setSafeTime}}
     >
       {children}
     </DataCenterContext.Provider>

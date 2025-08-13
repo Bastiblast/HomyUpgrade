@@ -5,30 +5,27 @@ import { DataCenterContext } from './query/datacenter-contextAndProvider';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card';
 import { Input } from './components/ui/input';
 import { useDebounce } from "use-debounce";
+import { cn } from './lib/utils';
 
 
 export default function ActivityDetails() {
-	const {boardHeadcount,setSafeTime} = useContext(DataCenterContext)
+	const {ITC,boardHeadcount,setSafeTime,safeTime} = useContext(DataCenterContext)
 	const boardTotalHeadCount = boardHeadcount.reduce((acc:number,val:number) => acc + val,0)
-	console.log({boardHeadcount})
+
 	const [safeTimeInput,setSafeTimeInput] = useState(() => 15)
 	const [panelHeadCount,setPanelHeadCount] = useState(() => 0)
 
-	const boardRef = useRef(boardTotalHeadCount)
-	const panelRef = useRef(panelHeadCount)
+	const prevBoardValue = useRef(boardTotalHeadCount)
+	const prevPanelValue = useRef(panelHeadCount)
 
 	const totalHeadCount = useMemo(() => {
-	console.log('1',{boardRef:boardRef.current,boardTotalHeadCount,panelRef:panelRef.current,panelHeadCount})
-		const prevBoard = boardRef.current
-		const prevPanel = panelRef.current
-		boardRef.current = boardTotalHeadCount
-		panelRef.current = panelHeadCount
-		console.log('2',{prevBoard,boardTotalHeadCount,prevPanel,panelHeadCount})
 		let freshData
-		if (panelHeadCount === 0) freshData = boardTotalHeadCount
 		if (boardTotalHeadCount === 0) freshData = panelHeadCount
-		freshData = panelHeadCount 
-
+		if (panelHeadCount === 0) freshData = boardTotalHeadCount
+		if (prevBoardValue.current !== boardTotalHeadCount) freshData = boardTotalHeadCount
+		if (prevPanelValue.current !== panelHeadCount) freshData = panelHeadCount
+		prevBoardValue.current = boardTotalHeadCount
+		prevPanelValue.current = panelHeadCount
 	return freshData
 	}
 	,[boardHeadcount, panelHeadCount])
@@ -41,16 +38,6 @@ export default function ActivityDetails() {
 	const updateUPH = uzeStore((s) => s.updateUPH);
 	const updateTBCPT = uzeStore((s) => s.updateTBCPT);
 
-	const UPHRef = useRef<HTMLInputElement>(null);
-	const timeBeforeFinishRef = useRef<HTMLInputElement>(null);
-	const headcountRef = useRef<HTMLInputElement>(null);
-
-	const environnement = uzeStore((s) => s.environnement);
-	const pageTime = uzeStore((s) => s.pageTime);
-
-	const form = useRef(null)
-	const formdata = new FormData()
-
 	useEffect(() => {
 		const timeOut = setTimeout(() => setSafeTime(Number(safeTimeInput)),1000)
 		return () => clearTimeout(timeOut)
@@ -62,7 +49,7 @@ export default function ActivityDetails() {
 		GM.getValue('Homy_capacityDetails').then((GMValue) => {
 			if (!GMValue || GMValue == undefined) {
 				updateUPH(145);
-				updateTBCPT(45);
+				setSafeTime(45);
 			} else {
 				//console.log('GM_getValue("Homy_capacityDetails")',GMValue)
 				const info = GMValue ? JSON.parse(GMValue) : null;
@@ -71,7 +58,7 @@ export default function ActivityDetails() {
 						? 145
 						: info.userPreference.UPH,
 				);
-				updateTBCPT(
+				setSafeTime(
 					isNaN(info.userPreference.TBCPT) ||
 						!info.userPreference.TBCPT
 						? 45
@@ -82,23 +69,18 @@ export default function ActivityDetails() {
 	}, []);
 
 	useEffect(() => {
-		if (!UPH || !TBCPT) return;
+		if (!UPH || !safeTimeInput) return;
 
 		const newDetails = {
-			dataTime: environnement === 'developpement' ? pageTime : Date.now(),
+			dataTime: ITC,
 			userPreference: {
 				UPH: UPH,
-				TBCPT: TBCPT,
+				TBCPT: safeTimeInput,
 			},
 		};
 		console.log({ newDetails });
 		updateCapacityDetails(newDetails);
-	}, [UPH, TBCPT]);
-
-
-	const emptyInputColor = {
-		0: 'bg-red-300',
-	};
+	}, [UPH, safeTimeInput]);
 
 	
 	return (
@@ -120,27 +102,24 @@ export default function ActivityDetails() {
 			<Input
 				defaultValue={boardHeadcount}
 				value={totalHeadCount}
-				ref={headcountRef}
 				name='headcount'
 				onChange={(e) => setPanelHeadCount(Number(e.target.value))}
 				type="number"
-				className={
-					`my-1 border-blue-400 ` +
-					emptyInputColor[totalHeadCount ?? 0]
+				className={cn(
+					'my-1 border-blue-400',{'bg-red-300': totalHeadCount === 0}
+					)
 				}
 			/>
 
 			<div className={'flex items-center justify-end pr-3 text-sm'}>UPH</div>
 			<Input
 				value={UPH}
-				ref={UPHRef}
 				name='UPH'
 				type="number"
 				onChange={(e) => updateUPH(Number(e.target.value))}
-				className={
-					'my-1 border-blue-400 ' +
-					emptyInputColor[UPH]
-				}
+				className={cn(
+					'my-1 border-blue-400',{'bg-red-300': UPH === 0}
+					)}
 			/>
 
 			<label className="flex justify-end items-center pr-3 text-esm text-sm">
@@ -148,14 +127,12 @@ export default function ActivityDetails() {
 			</label>
 			<Input
 				value={safeTimeInput}
-				ref={timeBeforeFinishRef}
 				name='secureTime'
-				onChange={(e) => setSafeTimeInput(e.target.value)}
+				onChange={(e) => setSafeTimeInput(Number(e.target.value))}
 				type="number"
-				className={
-					`my-1 border-blue-400 ` +
-					emptyInputColor[TBCPT]
-				}
+				className={cn(
+					'my-1 border-blue-400',{'bg-red-300': safeTimeInput === 0}
+					)	}
 			/>
 			</CardContent>
 		</Card>
