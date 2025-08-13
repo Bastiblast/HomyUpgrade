@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useEffect, useMemo, useState } from 'react'
+import React, { PropsWithChildren, useState } from 'react'
 import useMonkeyQuery from './useMonkeyQuery'
 import { staticPickDatas } from '../pickSumList'
 import { env } from '../../env'
@@ -9,10 +9,7 @@ import { staticPDPDatas } from '@/packSinglePDP'
 import { staticRodeoDatas } from '@/shipmentItemList'
 import makePickDatas from './make-rodeo-picked'
 import type { GMQueryResponse } from './useMonkeyQuery'
-import getLastPlan from './make-lastPlan'
 import makeLastPlan from './make-lastPlan'
-import { time } from 'console'
-const jsonPlaceHolder = 'https://jsonplaceholder.typicode.com/todos/1'
 
 const urlCSVPickSummary = `https://rodeo-dub.amazon.com/MRS1/CSV/ExSD?isEulerUpgraded=ALL&processPath=&fnSku=&fulfillmentServiceClass=ALL&exSDRange.quickRange=PLUS_MINUS_1_DAY
 &isEulerPromiseMiss=ALL&zAxis=PROCESS_PATH&sortCode=&isEulerExSDMiss=ALL&exSDRange.dailyEnd=00%3A00&exSDRange.dailyStart=00%3A00&yAxis=WORK_POOL
@@ -30,12 +27,18 @@ const PDPurl = 'https://share.amazon.com/sites/MRS1-PDP/Documents%20partages/MRS
 const urlCSVrodeo = `https://rodeo-dub.amazon.com/MRS1/ItemListCSV?_enabledColumns=on&WorkPool=PickingPickedAtDestination&enabledColumns=ASIN_TITLES&enabledColumns=DEMAND_ID&enabledColumns=OUTER_SCANNABLE_ID&enabledColumns=SORT_CODE&Excel=false&Fracs=NON_FRACS&ProcessPath=PPSingleMedium&shipmentType=CUSTOMER_SHIPMENTS`
 
 type DataCenterContext = { 
+  ITC: number,
   pdpQuery: GMQueryResponse, 
   pickQuery: GMQueryResponse, 
   pickedQuery: GMQueryResponse,
   planQuery: GMQueryResponse, 
   boardHeadcount: number[], 
-  mapping: [string,string][], 
+  mapping: {
+    ligne1: Map<string, string>;
+    ligne2: Map<string, string>;
+    ligne3: Map<string, string>;
+    ligne4: Map<string, string>;
+  }, 
   setMapping: React.Dispatch<React.SetStateAction<{
     ligne1: Map<string, string>;
     ligne2: Map<string, string>;
@@ -90,7 +93,7 @@ export default function DataProvider(props: PropsWithChildren) {
     }
   })
 
-	const boardHeadcount = Object.values(mapping).map((line,index) => {return index = line.size})
+	const boardHeadcount = Object.values(mapping).map((line) => line.size)
 
   const [CPTList,setCPTList] = useState<string[] | null>(null)
 

@@ -9,7 +9,11 @@ import { cn } from './lib/utils';
 
 
 export default function ActivityDetails() {
-	const {ITC,boardHeadcount,setSafeTime,safeTime} = useContext(DataCenterContext)
+	const context = useContext(DataCenterContext)
+	if (!context) {
+		throw new Error('ActivityDetails must be used within a DataCenterContext.Provider')
+	}
+	const {ITC,boardHeadcount,setSafeTime,safeTime} = context
 	const boardTotalHeadCount = boardHeadcount.reduce((acc:number,val:number) => acc + val,0)
 
 	const [safeTimeInput,setSafeTimeInput] = useState(() => 15)
@@ -100,8 +104,7 @@ export default function ActivityDetails() {
 				headcount
 			</span>
 			<Input
-				defaultValue={boardHeadcount}
-				value={totalHeadCount}
+				value={totalHeadCount || ''}
 				name='headcount'
 				onChange={(e) => setPanelHeadCount(Number(e.target.value))}
 				type="number"

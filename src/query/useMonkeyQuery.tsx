@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { GM, GM_getValue, GM_setValue } from 'vite-plugin-monkey/dist/client'
 import { env } from '../../env'
-import { GmAsyncXmlhttpRequestReturnType } from '$'
+import { GmAsyncXmlhttpRequestReturnType, GmResponseType } from '$'
 
 interface MonkeyQueryProps {
   name: string
@@ -17,15 +17,14 @@ interface progress {
 }
 
 export interface GMQueryResponse {
-  status: string | 'wait' | 'start' | 'load' | 'abort' | 'error' | 'success' | 'completed' | 'standby'
-  errorMessage?: string | null
-  stamp?: number
-  loading: boolean
-  progress?: progress | null
-  lifeTime?: number | null
+  status: string | 'wait' | 'start' | 'load' | 'abort' | 'error' | 'success' | 'completed' | 'standby' | null;
+  errorMessage?: string | null;
+  stamp?: number;
+  loading: boolean;
+  progress?: progress | null;
+  lifeTime?: number | null;
   datas?: null | unknown[]
-}
-;[]
+}[] 
 
 const initializeMonkeyResponse = {
   datas: null,
@@ -36,10 +35,10 @@ const initializeMonkeyResponse = {
   lifeTime: null,
 } as GMQueryResponse
 
-export default function useMonkeyQuery({ name, urls, latence = 0, refresh = false, mutationFn }: MonkeyQueryProps) {
-  const [response, setResponse] = useState<GMQueryResponse>()
-  const [loading, setLoading] = useState<boolean>()
-  const [status, setStatus] = useState<string>()
+export default function useMonkeyQuery({ name, urls, latence = 0, refresh = false, mutationFn }: MonkeyQueryProps): GMQueryResponse | undefined | null {
+  const [response, setResponse] = useState<GMQueryResponse | null>(null)
+  const [loading, setLoading] = useState<GMQueryResponse['loading']>(false)
+  const [status, setStatus] = useState<GMQueryResponse['status']>(null)
   const [error, setError] = useState<string[]>()
   const [datas, setDatas] = useState<unknown[]>()
 
@@ -59,7 +58,7 @@ export default function useMonkeyQuery({ name, urls, latence = 0, refresh = fals
 
   useEffect(() => {
     lifeTime.current = Date.now() - stamp.current
-    const newResponse = { status, stamp: stamp.current, datas, logError: error, lifeTime: lifeTime.current }
+    const newResponse = { status, stamp: stamp.current, datas, logError: error, lifeTime: lifeTime.current,loading }
     console.log({ newResponse })
     setResponse(newResponse)
   }, [status, datas, error])
@@ -155,7 +154,7 @@ export default function useMonkeyQuery({ name, urls, latence = 0, refresh = fals
     setLoading(false)
   }
 
-  const queryHandler = (resp: GmAsyncXmlhttpRequestReturnType<'text', unknown>) => {
+  const queryHandler = (resp:GmAsyncXmlhttpRequestReturnType<"text", any>) => {
     console.log({ resp })
     if (resp.status !== 200) {
       const time = new Date().toTimeString().slice(0, 8)
