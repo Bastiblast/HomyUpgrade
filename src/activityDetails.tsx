@@ -124,7 +124,9 @@ export default function ActivityDetails() {
 			<Input
 				value={safeTimeInput}
 				name='secureTime'
-				onChange={(e) => setSafeTimeInput(Number(e.target.value))}
+				onChange={(e) => {
+					setSafeTimeInput(Number(e.target.value))
+					setSafeTime(Number(e.target.value))}}
 				type="number"
 				className={cn(
 					'my-1 border-blue-400',{'bg-red-300': safeTimeInput === 0}

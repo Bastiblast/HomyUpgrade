@@ -13,7 +13,7 @@ export default function InfoBox() {
   }
 
   return (
-    <div className="flex w-2/5 flex-col bg-white shadow shadow-md">
+    <div className="relative flex w-2/5 flex-col bg-white shadow shadow-md">
       <span className="flex w-full justify-center bg-violet-100 font-bold">InfoBox</span>
 
       {renderInfoBox()}

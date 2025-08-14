@@ -3,6 +3,7 @@ import { getLastPlanSingle } from '../nail-the-plan/get-lastSinglePlan'
 import { uzeStore } from '../../store/uzeStore'
 import Loader from '../../store/loader-component'
 import { DataCenterContext } from '@/query/datacenter-contextAndProvider'
+import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table'
 
 export default function CardWash() {
 
@@ -32,13 +33,13 @@ export default function CardWash() {
 
   const secureTimeToNextCPT = () => {
     console.log({safeTime},timeRemain())
-    const data = timeRemain() - safeTime / 60
+    const data = (timeRemain() / 60 / 1000) - (safeTime / 60)
     console.log({data})
     return data
   }
 
   return (
-    <div className="flex h-full flex-col items-center justify-center align-middle">
+    <div className="flex h-full w-full flex-col p-4">
       {panelHeadCount === 0 || typeof panelHeadCount !== 'number' ? (
         <span>Indiquer le nombre de packer pour lancer le calcule.</span>
       ) : !totalUnits() ? (
@@ -48,28 +49,28 @@ export default function CardWash() {
       ) : (
         plan && (
           <>
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>PickTUR</th>
-                  <th></th>
-                  <th>Temps restants</th>
-                  <th></th>
-                  <th>deviated WIP</th>
-                  <th>Total units</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>({plan.pick_tur.toFixed(0)}</td>
-                  <td>X</td>
-                  <td>{secureTimeToNextCPT().toFixed(1)}h)</td>
-                  <td>{deviatedWIP() > 0 ? '+' : ''}</td>
-                  <td>{deviatedWIP()?.toFixed(0)}</td>
-                  <td>{totalUnits().toFixed(0)}</td>
-                </tr>
-              </tbody>
-            </table>
+            <Table className='border-2 p-4 w-full'>
+              <TableHeader className='bg-slate-100'>
+                <TableRow>
+                  <TableHead  className='font-bold'>PickTUR</TableHead>
+                  <TableHead  className='font-bold'></TableHead>
+                  <TableHead  className='font-bold'>Temps restants</TableHead>
+                  <TableHead  className='font-bold'></TableHead>
+                  <TableHead  className='font-bold'>deviated WIP</TableHead>
+                  <TableHead  className='font-bold'>Total units</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow>
+                  <TableCell>({plan.pick_tur.toFixed(0)}</TableCell>
+                  <TableCell>X</TableCell>
+                  <TableCell>{secureTimeToNextCPT().toFixed(1)}h)</TableCell>
+                  <TableCell>{deviatedWIP() > 0 ? '+' : ''}</TableCell>
+                  <TableCell>{deviatedWIP()?.toFixed(0)}</TableCell>
+                  <TableCell>{totalUnits().toFixed(0)}</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
             <div>
               <span>
                 <strong>Units par heure : </strong>
