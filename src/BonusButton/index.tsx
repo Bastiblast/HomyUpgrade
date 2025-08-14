@@ -71,7 +71,7 @@ export default function BonusButton({ data }) {
       >
         PICK
       </Button>
-      <Button onClick={() => null} className="bg-slate-500/70 shadow-md m-1 rounded-none w-16" disabled={bonusDisabled}>
+      <Button onClick={() => planQuery.get() && updateIBC(<CardWash/>)} className="bg-slate-500/70 shadow-md m-1 rounded-none w-16" disabled={bonusDisabled}>
         WASH
       </Button>
       <Button

@@ -13,23 +13,27 @@ export default function ActivityDetails() {
 	if (!context) {
 		throw new Error('ActivityDetails must be used within a DataCenterContext.Provider')
 	}
-	const {ITC,boardHeadcount,setSafeTime,safeTime} = context
+	const {ITC,boardHeadcount,setSafeTime,productivity,setProductivity,panelHeadCount,setPanelHeadCount} = context
 	const boardTotalHeadCount = boardHeadcount.reduce((acc:number,val:number) => acc + val,0)
 
 	const [safeTimeInput,setSafeTimeInput] = useState(() => 15)
-	const [panelHeadCount,setPanelHeadCount] = useState(() => 0)
 
 	const prevBoardValue = useRef(boardTotalHeadCount)
 	const prevPanelValue = useRef(panelHeadCount)
 
 	const totalHeadCount = useMemo(() => {
+		console.log('activityDetails totalHeadCount',{boardTotalHeadCount,panelHeadCount})
+		console.log('activityDetails prevBoardValue',{prevBoardValue,boardTotalHeadCount})
+		console.log('activityDetails prevPanelValue',{prevPanelValue,panelHeadCount})
 		let freshData
-		if (boardTotalHeadCount === 0) freshData = panelHeadCount
-		if (panelHeadCount === 0) freshData = boardTotalHeadCount
+		if (panelHeadCount !== 0) freshData = panelHeadCount
+		if (boardTotalHeadCount !== 0) freshData = boardTotalHeadCount
 		if (prevBoardValue.current !== boardTotalHeadCount) freshData = boardTotalHeadCount
 		if (prevPanelValue.current !== panelHeadCount) freshData = panelHeadCount
 		prevBoardValue.current = boardTotalHeadCount
 		prevPanelValue.current = panelHeadCount
+		console.log('activityDetails freshData',{freshData})
+		setPanelHeadCount(freshData)
 	return freshData
 	}
 	,[boardHeadcount, panelHeadCount])
@@ -37,32 +41,21 @@ export default function ActivityDetails() {
 
 	const updateCapacityDetails = uzeStore((s) => s.updateCapacityDetails);
 
-	const UPH = uzeStore((s) => s.UPH);
-	const TBCPT = uzeStore((s) => s.TBCPT);
-	const updateUPH = uzeStore((s) => s.updateUPH);
-	const updateTBCPT = uzeStore((s) => s.updateTBCPT);
-
-	useEffect(() => {
-		const timeOut = setTimeout(() => setSafeTime(Number(safeTimeInput)),1000)
-		return () => clearTimeout(timeOut)
-	},[safeTimeInput])
-
-
 	useEffect(() => {
 		//console.log("Trying cache user preference....")
 		GM.getValue('Homy_capacityDetails').then((GMValue) => {
 			if (!GMValue || GMValue == undefined) {
-				updateUPH(145);
+				setProductivity(145);
 				setSafeTime(45);
 			} else {
 				//console.log('GM_getValue("Homy_capacityDetails")',GMValue)
 				const info = GMValue ? JSON.parse(GMValue) : null;
-				updateUPH(
+				setProductivity(
 					isNaN(info.userPreference.UPH) || !info.userPreference.UPH
 						? 145
 						: info.userPreference.UPH,
 				);
-				setSafeTime(
+				setSafeTimeInput(
 					isNaN(info.userPreference.TBCPT) ||
 						!info.userPreference.TBCPT
 						? 45
@@ -73,18 +66,18 @@ export default function ActivityDetails() {
 	}, []);
 
 	useEffect(() => {
-		if (!UPH || !safeTimeInput) return;
-
+		if (!productivity || !safeTimeInput) return;
+		console.log("new details writting")
 		const newDetails = {
 			dataTime: ITC,
 			userPreference: {
-				UPH: UPH,
+				UPH: productivity,
 				TBCPT: safeTimeInput,
 			},
 		};
 		console.log({ newDetails });
 		updateCapacityDetails(newDetails);
-	}, [UPH, safeTimeInput]);
+	}, [productivity, safeTimeInput]);
 
 	
 	return (
@@ -116,12 +109,12 @@ export default function ActivityDetails() {
 
 			<div className={'flex items-center justify-end pr-3 text-sm'}>UPH</div>
 			<Input
-				value={UPH}
+				value={productivity}
 				name='UPH'
 				type="number"
-				onChange={(e) => updateUPH(Number(e.target.value))}
+				onChange={(e) => setProductivity(Number(e.target.value))}
 				className={cn(
-					'my-1 border-blue-400',{'bg-red-300': UPH === 0}
+					'my-1 border-blue-400',{'bg-red-300': productivity === 0}
 					)}
 			/>
 

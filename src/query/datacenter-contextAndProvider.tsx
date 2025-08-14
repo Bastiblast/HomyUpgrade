@@ -12,6 +12,7 @@ import type { GMQueryResponse } from './useMonkeyQuery'
 import makeLastPlan from './make-lastPlan'
 import { PDPurl, planListTemplate, planURL, urlCSVPickSummary, urlCSVrodeo } from './localData'
 
+type PickDatas = [string,number][] | null | undefined
 
 interface DataCenterContext  { 
   ITC: number,
@@ -87,8 +88,9 @@ export default function DataProvider(props: PropsWithChildren) {
   const ITC = env === 'developpement' ? 1753109891000 : Date.now()
 
   const timeRemain = () => {
-    const pickDatas = pickQuery?.response?.datas
-    console.log({pickDatas})
+    if (!pickQuery.response) return
+    const pickDatas = pickQuery.response.datas as GMQueryResponse[]
+    //console.log({pickDatas})
     if (!pickDatas) return
     if (CPTList) {
       const nextCPT = CPTList.sort()[0]
@@ -102,11 +104,13 @@ export default function DataProvider(props: PropsWithChildren) {
 
   }
 
+	const [panelHeadCount,setPanelHeadCount] = useState(() => 0)
   const [safeTime,setSafeTime] = useState(15)
-  
-  console.log('data center timeRemain',timeRemain(),{CPTList})
+  const [productivity,setProductivity] = useState(145)
 
-	console.log({pdpQuery,mapping,boardHeadcount})
+  //console.log('data center timeRemain',timeRemain(),{CPTList})
+
+	//console.log({pdpQuery,mapping,boardHeadcount})
 
 /*
   const [boardHeadcount, setBoardHeadcount] = useState(null)
@@ -119,7 +123,7 @@ export default function DataProvider(props: PropsWithChildren) {
 */
   return (
     <DataCenterContext.Provider
-      value={{ITC, pdpQuery, pickQuery, pickedQuery, planQuery, boardHeadcount, mapping, setMapping,setCPTList,CPTList,timeRemain,safeTime,setSafeTime}}
+      value={{panelHeadCount,setPanelHeadCount,productivity,setProductivity,ITC, pdpQuery, pickQuery, pickedQuery, planQuery, boardHeadcount, mapping, setMapping,setCPTList,CPTList,timeRemain,safeTime,setSafeTime}}
     >
       {children}
     </DataCenterContext.Provider>
