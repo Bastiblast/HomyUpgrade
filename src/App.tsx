@@ -2,7 +2,6 @@ import PackLine from './PackLine/index'
 import MultiSelectorBtn from './Header/MultiSelectorBtn'
 import { uzeStore } from './store/uzeStore'
 import InfoBox from './PackLine/InfoBox'
-import TotalHeadCount from './PackLine/TotalHeadCount'
 import BonusButton from './BonusButton/index'
 import React, { useContext, useEffect, useState } from 'react'
 import { GM_getValue, GM_setValue } from '$'
@@ -10,6 +9,8 @@ import { singlePlanTemplate, getLastPlanSingle } from './BonusButton/nail-the-pl
 import ActivityDetails from './activityDetails'
 import DataCenterContext from './query/datacenter-contextAndProvider'
 import { Button } from './components/ui/button'
+import TotalHeadCount from './Header/TotalHeadCount'
+import Clock from './Header/clockHorloge'
 
 function App() {
   const refresher = uzeStore((s) => s.refresher)
@@ -54,6 +55,7 @@ function App() {
                 <Button className="mx-2 w-20 btn">Refresh</Button>
               )}
           </div>
+              <Clock />
           <div>
             <BonusButton />
           </div>

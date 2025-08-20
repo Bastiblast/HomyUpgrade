@@ -16,7 +16,7 @@ export default function Poste({ poste }) {
   if (!pickedQuery.response?.datas) return
   const dataTotal = pickedQuery.response.datas[0].data
 
-  console.log({safeTime})
+  console.log({safeTime},'TimeRemain ',timeRemain())
 
   let renderUnits,
     nextCPT,
@@ -34,7 +34,7 @@ export default function Poste({ poste }) {
     nextCPT = wsCPT < stationCPT ? wsCPT : stationCPT
 
     const timeToFinish = renderUnits / UPH
-    potentiel = (timeRemain() / 1000 / 60) - (timeToFinish + safeTime / 60)
+    potentiel = (timeRemain() / 1000 / 60) - ((timeToFinish + safeTime) / 60)
     //console.log('nextCPT',{poste,wsCPT,stationCPT},dataTotal[`dz-P-OB-Single-cvg-${poste}`])
     //nextCPT && console.log('potentiel',timeRemain(),(timeRemain() / 1000 / 60 / 60),{poste,dataTotal,nextCPT,timeToFinish,safeTime,potentiel})
     stationColor =

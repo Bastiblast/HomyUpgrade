@@ -1,6 +1,17 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
+@font-face {
+  font-family: 'digital';
+  src: url('https://fonts.googleapis.com/css2?family=Stick+No+Bills:wght@200..800&display=swap');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.digital {
+  font-family: 'digital', sans-serif;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

@@ -92,13 +92,15 @@ export default function DataProvider(props: PropsWithChildren) {
     const pickDatas = pickQuery.response.datas as GMQueryResponse[]
     //console.log({pickDatas})
     if (!pickDatas) return
-    if (CPTList) {
+    if (CPTList && CPTList.length !== 0) {
+      console.log("timeRemain get CPTList",CPTList)
       const nextCPT = CPTList.sort()[0]
       const timeRemain = Date.parse(nextCPT) - ITC
       return timeRemain
     } else {
       const nextCPT = pickDatas[0].data.sort()?.[0]?.[0]
       const timeRemain = Date.parse(nextCPT) - ITC
+      console.log("timeRemain get no CPTList",nextCPT,timeRemain)
       return timeRemain
     }
 

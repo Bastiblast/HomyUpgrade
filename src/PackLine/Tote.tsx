@@ -19,7 +19,7 @@ export default function RenderRack({ dropzone, inductPrio, data }) {
 
   if (!data?.[dropzone]) return
 
-  console.log('tote',{ dropzone, inductPrio, data })
+  //console.log('tote',{ dropzone, inductPrio, data })
 
   return <>
   {
