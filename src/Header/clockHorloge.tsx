@@ -16,14 +16,15 @@ const Clock: React.FC = () => {
   }, [ITC]);
 
   return (
-    <>
-    <div className='digital'>
+    <div className='flex flex-col items-center justify-evenly '>
+    <div className='digital text-6xl'>
       {time.getHours().toString().padStart(2, '0')}:
       {time.getMinutes().toString().padStart(2, '0')}
     </div>
-    <ClockTime value={time} />
+    {//<ClockTime value={time} />
+    }
     
-    </>
+    </div>
   );
 };
 

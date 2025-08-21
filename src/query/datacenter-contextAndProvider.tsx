@@ -10,7 +10,8 @@ import { staticRodeoDatas } from '@/shipmentItemList'
 import makePickDatas from './make-rodeo-picked'
 import type { GMQueryResponse } from './useMonkeyQuery'
 import makeLastPlan from './make-lastPlan'
-import { PDPurl, planListTemplate, planURL, urlCSVPickSummary, urlCSVrodeo } from './localData'
+import { PDPurl, planListTemplate, planURL, urlCSVPickSummary, urlCSVrodeo,rodeoCapaUrlList } from './sources'
+import makeCapaRodeo from './make-capa'
 
 type PickDatas = [string,number][] | null | undefined
 
@@ -54,6 +55,14 @@ export default function DataProvider(props: PropsWithChildren) {
     urls: [JSON.stringify(sourcePdp)],
     refresh: false,
     mutationFn: makePdpDatas,
+  })
+
+  const sourceCapa = env === 'developpement' ? staticPDPDatas : rodeoCapaUrlList
+  const capaQuery = useMonkeyQuery({
+    name: 'capa',
+    urls: [JSON.stringify(sourceCapa)],
+    refresh: false,
+    mutationFn: makeCapaRodeo,
   })
 
   const sourcePicked = env === 'developpement' ? staticRodeoDatas : urlCSVrodeo
@@ -125,7 +134,7 @@ export default function DataProvider(props: PropsWithChildren) {
 */
   return (
     <DataCenterContext.Provider
-      value={{panelHeadCount,setPanelHeadCount,productivity,setProductivity,ITC, pdpQuery, pickQuery, pickedQuery, planQuery, boardHeadcount, mapping, setMapping,setCPTList,CPTList,timeRemain,safeTime,setSafeTime}}
+      value={{capaQuery,panelHeadCount,setPanelHeadCount,productivity,setProductivity,ITC, pdpQuery, pickQuery, pickedQuery, planQuery, boardHeadcount, mapping, setMapping,setCPTList,CPTList,timeRemain,safeTime,setSafeTime}}
     >
       {children}
     </DataCenterContext.Provider>

@@ -39,8 +39,8 @@ export default function Poste({ poste }) {
     //nextCPT && console.log('potentiel',timeRemain(),(timeRemain() / 1000 / 60 / 60),{poste,dataTotal,nextCPT,timeToFinish,safeTime,potentiel})
     stationColor =
       potentiel > 0 || isNaN(potentiel)
-        ? 'flex flex-row shrink items-center bg-violet-400 p-1 m-1 justify-between rounded-md'
-        : 'flex flex-row shrink items-center bg-red-400 p-1 m-1 justify-between rounded-md'
+        ? 'flex flex-row shrink items-center bg-violet-400 p-1 m-1 justify-between rounded-md h-9'
+        : 'flex flex-row shrink items-center bg-red-400 p-1 m-1 justify-between rounded-md h-9'
   }
 
   const stationSearchParams = `dz-P-OB-Single-cvg-${poste}+ws_Singles_0${poste}`
@@ -49,7 +49,7 @@ export default function Poste({ poste }) {
     <div className={stationColor} key={'L1' + '-' + poste}>
       <div className="flex flex-row items-center w-full">
         <div className="relative">
-          <span className="bg-lime-400 p-2 rounded-md">{String(poste)}</span>
+          <span className="bg-lime-400 p-1 mr-1 rounded-md">{String(poste)}</span>
           {renderUnits && (
             <img
               onClick={() => searchOnRodeo(stationSearchParams)}

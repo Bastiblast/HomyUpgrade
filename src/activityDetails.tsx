@@ -84,15 +84,10 @@ export default function ActivityDetails() {
 		<Card>
 			<CardHeader>
 				<CardTitle>
-
 					Activity details
 				</CardTitle>
-				<CardDescription>
-						Information pour les calcules de capacité et de priorisation des
-						bacs.
-				</CardDescription>
 			</CardHeader>
-			<CardContent className='grid grid-cols-2 mt-2'>
+			<CardContent className='grid grid-cols-2'>
 			<span className={`flex items-center justify-end pr-3 text-sm`}>
 				headcount
 			</span>
@@ -102,7 +97,7 @@ export default function ActivityDetails() {
 				onChange={(e) => setPanelHeadCount(Number(e.target.value))}
 				type="number"
 				className={cn(
-					'my-1 border-blue-400',{'bg-red-300': totalHeadCount === 0}
+					'h-6 my-1 border-blue-400',{'bg-red-300': totalHeadCount === 0}
 					)
 				}
 			/>
@@ -114,7 +109,7 @@ export default function ActivityDetails() {
 				type="number"
 				onChange={(e) => setProductivity(Number(e.target.value))}
 				className={cn(
-					'my-1 border-blue-400',{'bg-red-300': productivity === 0}
+					'h-6 my-1 border-blue-400',{'bg-red-300': productivity === 0}
 					)}
 			/>
 
@@ -129,7 +124,7 @@ export default function ActivityDetails() {
 					setSafeTime(Number(e.target.value))}}
 				type="number"
 				className={cn(
-					'my-1 border-blue-400',{'bg-red-300': safeTimeInput === 0}
+					'h-6 my-1 border-blue-400',{'bg-red-300': safeTimeInput === 0}
 					)	}
 			/>
 			</CardContent>

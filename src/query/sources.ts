@@ -1,3 +1,10 @@
+const stamp = Date.now()
+const rangeStartMillis = String(stamp - 3600000).slice(0, 8) + '99999'
+const rangeEndMillis = stamp + 3600000 * 4
+
+const processPath = ['PickingNotYetPicked', 'PickingPicked'].map((pp) => 'WorkPool=' + pp + '&')
+
+export const rodeoCapaUrlList = processPath.map(pp => `https://rodeo-dub.amazon.com/MRS1/ItemListCSV?_enabledColumns=on&${pp}enabledColumns=ASIN_TITLES&enabledColumns=OUTER_SCANNABLE_ID&ExSDRange.RangeStartMillis=${rangeStartMillis}&ExSDRange.RangeEndMillis=${rangeEndMillis}&Fracs=NON_FRACS&ProcessPath=PPSingleMedium&shipmentType=CUSTOMER_SHIPMENTS`)
 
 
 const date = new Date(Date.now())

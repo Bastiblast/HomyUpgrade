@@ -91,7 +91,7 @@ export default function RenderRack({ dropzone, inductPrio, data }) {
     return (
       <div
         onClick={() => handleToteLook(totes, data[dropzone][totes], updateIBC)}
-        className={activeTote + ' m-1 rounded p-1 transition-all hover:scale-[2] hover:font-bold'}
+        className={activeTote + ' m-[2px] rounded p-[2px] transition-all hover:scale-[2] hover:font-bold'}
         key={totes}
       >
         {totes.substring(8, 11)}

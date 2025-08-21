@@ -1,16 +1,10 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Rubik+Doodle+Triangles&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Saira+Stencil+One&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
-@font-face {
-  font-family: 'digital';
-  src: url('https://fonts.googleapis.com/css2?family=Stick+No+Bills:wght@200..800&display=swap');
-  font-weight: normal;
-  font-style: normal;
-}
 
-.digital {
-  font-family: 'digital', sans-serif;
-}
 
 @custom-variant dark (&:is(.dark *));
 
@@ -122,10 +116,18 @@
 }
 
 @layer base {
+
+
+  .bonusBtn {
+    @apply bg-slate-500/70 shadow-md m-1 rounded-none w-16  h-16 text-lg
+  }
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
+  }
+  .digital {
+    font-family: Saira Stencil One;
   }
 }

@@ -12,71 +12,50 @@ import TablePick from './pick-remain/table-pick'
 import ShiftPaternSelector from './ShiftPaternSelector'
 import { Button } from '@/components/ui/button'
 
-export default function BonusButton({ data }) {
-  const { pdpQuery, planQuery, pickQuery, pickedQuery } = useContext(DataCenterContext)
+export default function BonusButton() {
+  const { capaQuery, pdpQuery, planQuery, pickQuery, pickedQuery } = useContext(DataCenterContext)
 
-  const { renderPick } = usePick()
 
-  const updatePDPData = uzeStore((s) => s.updatePDPData)
-
-  const dataCapaAge = uzeStore((s) => s.dataCapaAge)
-
-  const updateCapaRefresher = uzeStore((s) => s.updateCapaRefresher)
   const updateIBC = uzeStore((s) => s.updateIBC)
 
-  const dataPick = uzeStore((s) => s.dataPick)
-  const dataCapa = uzeStore((s) => s.dataCapa)
-  const refresher = uzeStore((s) => s.refresher)
-  const refresherCapa = uzeStore((s) => s.refresherCapa)
-  const refresherPick = uzeStore((s) => s.refresherPick)
   const bonusDisabled = false
 
-  const fullInfo = uzeStore((s) => s.fullInfo)
-  const updateFullInfo = uzeStore((s) => s.updateFullInfo)
-
-  const environnement = uzeStore((s) => s.environnement)
-  const pageTime = uzeStore((s) => s.pageTime)
-
-  const isOutDated = (stamp, sec) => {
-    if (!stamp || !sec) return
-    const isOutDated = !((environnement === 'developpement' ? pageTime : Date.now() - sec) / 1000) < sec
-    console.log(new Date(stamp).toLocaleTimeString('fr-FR'), ' is out dated ? ', isOutDated)
-    return isOutDated
-  }
-
   console.log({ planQuery })
+
+  const styleBtn = 'bg-slate-500/70 shadow-md m-1 rounded-none w-16  h-12 text-lg'
+
   return (
     <div className="justify-evenly grid grid-cols-2 grid-rows-3 pt-3 h-full">
       <Button
         onClick={() => planQuery.get() && updateIBC(<GetThePlan />)}
-        className="bg-slate-500/70 shadow-md m-1 rounded-none w-16"
+        className={styleBtn}
         disabled={bonusDisabled}
       >
         PLAN
       </Button>
       <Button
         onClick={() => pdpQuery.get()}
-        className="bg-slate-500/70 shadow-md m-1 rounded-none w-16"
+        className={styleBtn}
         disabled={bonusDisabled}
       >
         PDP
       </Button>
-      <Button onClick={() => null} className="bg-slate-500/70 shadow-md m-1 rounded-none w-16" disabled={bonusDisabled}>
+      <Button onClick={() => capaQuery.get()} className={styleBtn} disabled={bonusDisabled}>
         PRIO
       </Button>
       <Button
         onClick={() => pickQuery.get() && updateIBC(<TablePick />)}
-        className="bg-slate-500/70 shadow-md m-1 rounded-none w-16"
+        className={styleBtn}
         disabled={bonusDisabled}
       >
         PICK
       </Button>
-      <Button onClick={() => planQuery.get() && updateIBC(<CardWash/>)} className="bg-slate-500/70 shadow-md m-1 rounded-none w-16" disabled={bonusDisabled}>
+      <Button onClick={() => planQuery.get() && updateIBC(<CardWash/>)} className={styleBtn} disabled={bonusDisabled}>
         WASH
       </Button>
       <Button
         onClick={() => pickedQuery.get()}
-        className="bg-slate-500/70 shadow-md m-1 rounded-none w-16"
+        className={styleBtn}
         disabled={bonusDisabled}
       >
         INFO

@@ -39,23 +39,20 @@ function App() {
   return (
     <DataCenterContext>
       <div className="bg-gradient-to-b from-white to-violet-300 p-4 h-full App">
-        <header className="flex justify-between p-1 shrink grow">
+        <header className="flex justify-between p-1 shrink h-50">
           <div className="flex flex-col justify-between">
+            <div className='flex flex-row justify-around'>
+              <div>
             <h1 className="py-3 font-bold text-5xl">Homy</h1>
             <TotalHeadCount />
+              </div>
+            <Clock />
+            </div>
             <div className="flex flex-row">
               <MultiSelectorBtn />
 
             </div>
-              {!refresher === 'loading' ? (
-                <Button className="mx-2 w-20 text-white btn" disabled>
-                  <span className="loading-xl loading loading-spinner"></span>
-                </Button>
-              ) : (
-                <Button className="mx-2 w-20 btn">Refresh</Button>
-              )}
           </div>
-              <Clock />
           <div>
             <BonusButton />
           </div>

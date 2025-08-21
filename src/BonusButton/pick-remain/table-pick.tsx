@@ -9,14 +9,10 @@ export default function TablePick() {
 
   return (
     <Card>
-      <CardHeader>
-        {
-          //pickQuery.Alert()
-        }
+      <CardHeader className='mb-1 gap-0'>
         <CardTitle>Pick Summary</CardTitle>
-        <CardDescription>see pick remain</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className='mt-1 gap-0'>
         <div onClick={() => pickQuery.get()}>{pickQuery?.response && JSON.stringify(pickQuery.response)}</div>
       </CardContent>
     </Card>
